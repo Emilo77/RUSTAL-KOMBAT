@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use rand::prelude::ThreadRng;
 use crate::AppState;
 
 use crate::gameplay::{create_sprite_bundle, GameTextures, spawn_dynamic_object};
@@ -14,7 +15,7 @@ enum PlayerSide {
 }
 
 #[derive(Component)]
-struct Player {
+pub struct Player {
     hp: u8,
     velocity: f32,
 }
@@ -69,19 +70,41 @@ pub fn spawn_players(
     }
 }
 
-// fn camera_following_players(
-//     mut commands: Commands,
-//     players: Query<(Player)>) {
-//
-//     for player in players.iter() {
-//         //todo
-//     }
-// }
+fn player1_movement(player_query: Query<(&Player, &mut Transform)>,
+                   keyboard_input: Res<Input<KeyCode>>) {
+    for (player, mut transform) in player_query.iter() {
+        if keyboard_input.pressed(KeyCode::Left) {
+            transform.translation.x - 1000.0;
+            print!("Left key pressed!");
+        }
+        if keyboard_input.pressed(KeyCode::Right) {
+            transform.translation.x + 1000.0;
+            print!("Right key pressed!");
+        }
+    }
+}
+
+fn player2_movement(player_query: Query<(&Player, &mut Transform)>,
+                    keyboard_input: Res<Input<KeyCode>>) {
+    for (player, mut transform) in player_query.iter() {
+        if keyboard_input.pressed(KeyCode::A) {
+            transform.translation.x - 1000.0;
+            print!("Left key pressed!");
+        }
+        if keyboard_input.pressed(KeyCode::D) {
+            transform.translation.x + 1000.0;
+            print!("Right key pressed!");
+        }
+    }
+}
+
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(spawn_players);
-            // .add_system(camera_following_players);
+        app.add_system(spawn_players)
+            .add_system(player1_movement)
+            .add_system(player2_movement);
+        // .add_system(camera_following_players);
     }
 }
 

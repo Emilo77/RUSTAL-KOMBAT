@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 // use bevy_rapier2d::prelude::*;
 
+pub use physics::*;
 pub use audio::*;
 pub use combat::*;
-pub use components::*;
 pub use map::*;
 pub use camera::*;
 pub use player::*;
@@ -13,11 +13,11 @@ use super::AppState;
 
 mod audio;
 mod combat;
-mod components;
 mod map;
 mod player;
 mod utils;
 mod camera;
+mod physics;
 
 #[derive(Component)]
 pub struct PhantomEntity;
@@ -42,7 +42,7 @@ impl Plugin for GamePlugin {
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(GameTextures {
         player_left: asset_server.load("images/samurai1.png"),
-        player_right: asset_server.load("images/samurai1.png"),
+        player_right: asset_server.load("images/samurai2.png"),
         sword: asset_server.load("images/sword.png"),
         sword2: asset_server.load("images/sword2.png"),
     });

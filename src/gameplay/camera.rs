@@ -22,6 +22,6 @@ pub fn move_camera_system(
     mut move_event_writer: EventWriter<ParallaxMoveEvent>,
 ) {
     move_event_writer.send(ParallaxMoveEvent {
-        camera_move_speed: 0.5,
+        camera_move_speed: 1.0,
     });
 }
