@@ -3,11 +3,12 @@ name = "game"
 version = "0.1.0"
 edition = "2021"
 authors = ["Kamil Bugała (kb417522)"]
+resolver = "2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = { version = "0.7", features = [
+bevy = { version = "0.8.1", features = [
     "dynamic",
     "render",
     "animation",
@@ -18,14 +19,17 @@ bevy = { version = "0.7", features = [
     "filesystem_watcher",
     "x11",
 ] }
-bevy_kira_audio = { version = "0.10.0", features = [
+bevy_rapier2d = "0.16.2"
+
+bevy_kira_audio = { version = "0.12.0", features = [
     "wav",
     "flac",
     "mp3",
     "ogg",
 ] }
 rand = "0.8.5"
-#bevy = "0.8" #todo do zmiany później
+
+bevy-parallax = "0.2.0"
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]

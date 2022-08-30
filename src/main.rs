@@ -5,7 +5,8 @@ use gameplay::GamePlugin;
 use menu::MenuPlugin;
 
 use crate::gameplay::{
-    OwnAudioPlugin, CombatPlugin, PowerupPlugin, PlayerPlugin, MapPlugin,
+    OwnAudioPlugin, CombatPlugin, PowerupPlugin, PlayerPlugin, MapPlugin, ScoreboardPlugin,
+    OwnCameraPlugin
 };
 
 mod gameplay;
@@ -24,21 +25,24 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .insert_resource(WindowDescriptor {
-            title: "Rustal combat".to_string(),
-            width: 1920.,
-            height: 1080.,
-            present_mode: PresentMode::Fifo,
-            decorations: true,
-            ..default()
+            title: "Rustal Combat".to_string(),
+            width: 1280.0,
+            height: 720.0,
+            resizable: false,
+            // present_mode: PresentMode::Fifo,
+            // decorations: true,
+            ..Default::default()
         })
-        .insert_resource(ClearColor(Color::GOLD))
+        // .insert_resource(ClearColor(Color::GOLD))
+        .add_plugin(MapPlugin)
+        .add_plugin(OwnCameraPlugin)
         .add_state(AppState::MainMenu)
         .add_plugin(GamePlugin)
+        .add_plugin(ScoreboardPlugin)
         .add_plugin(OwnAudioPlugin)
         .add_plugin(CombatPlugin)
         .add_plugin(PowerupPlugin)
         .add_plugin(PlayerPlugin)
-        .add_plugin(MapPlugin)
         .add_plugin(MenuPlugin)
         // .add_plugin(AiPlugin)
         .run();
