@@ -27,7 +27,7 @@ pub struct GameTextures {
     pub player_right: Handle<Image>,
 
     pub sword: Handle<Image>,
-    pub bonus: Handle<Image>,
+    pub sword2: Handle<Image>,
 }
 
 pub struct GamePlugin;
@@ -43,8 +43,8 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(GameTextures {
         player_left: asset_server.load("images/samurai1.png"),
         player_right: asset_server.load("images/samurai1.png"),
-        sword: asset_server.load("images/samurai1.png"), //todo
-        bonus: asset_server.load("images/samurai1.png"), //todo
+        sword: asset_server.load("images/sword.png"),
+        sword2: asset_server.load("images/sword2.png"),
     });
     commands
         .spawn_bundle(SpriteBundle { ..default() })

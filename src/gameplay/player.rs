@@ -69,10 +69,19 @@ pub fn spawn_players(
     }
 }
 
+// fn camera_following_players(
+//     mut commands: Commands,
+//     players: Query<(Player)>) {
+//
+//     for player in players.iter() {
+//         //todo
+//     }
+// }
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(spawn_players);
+            // .add_system(camera_following_players);
     }
 }
 
