@@ -28,11 +28,6 @@ pub struct GameTextures {
 
     pub sword: Handle<Image>,
     pub bonus: Handle<Image>,
-
-    pub floor: Handle<Image>,
-    pub background: Handle<Image>,
-    pub clouds: Handle<Image>,
-    pub tree: Handle<Image>,
 }
 
 pub struct GamePlugin;
@@ -50,10 +45,6 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         player_right: asset_server.load("images/samurai1.png"),
         sword: asset_server.load("images/samurai1.png"), //todo
         bonus: asset_server.load("images/samurai1.png"), //todo
-        floor: asset_server.load("images/samurai1.png"), //todo
-        background: asset_server.load("images/samurai1.png"), //todo
-        clouds: asset_server.load("images/samurai1.png"), //todo
-        tree: asset_server.load("images/samurai1.png"), //todo
     });
     commands
         .spawn_bundle(SpriteBundle { ..default() })
