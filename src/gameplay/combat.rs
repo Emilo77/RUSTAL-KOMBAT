@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::gameplay::{Bonds, Player};
+use crate::gameplay::{Bounds, Player};
 
 pub struct CombatPlugin;
 
@@ -94,7 +94,7 @@ impl Abilities {
             transform.translation.y += self.jump.current_power;
             self.jump.current_power -= GRAVITY_CONST;
 
-            let jump_done: bool = Bonds::check_y(transform);
+            let jump_done: bool = Bounds::check_bounds_y(transform);
 
             if jump_done {
                 self.jump.is_active = false;

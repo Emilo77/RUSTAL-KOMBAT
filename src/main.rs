@@ -32,11 +32,11 @@ fn main() {
             width: GAME_WIDTH,
             height: GAME_HEIGHT,
             resizable: false,
-            // present_mode: PresentMode::Fifo,
-            // decorations: true,
+            present_mode: PresentMode::Fifo,
+            decorations: true,
             ..Default::default()
         })
-        // .insert_resource(ClearColor(Color::GOLD))
+        .insert_resource(ClearColor(Color::BLACK))
         .add_plugin(OwnAudioPlugin)
         .add_plugin(MapPlugin)
         .add_plugin(OwnCameraPlugin)

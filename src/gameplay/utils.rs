@@ -87,14 +87,14 @@ struct HealthBar {
     //todo pasek zdrowia 2
 }
 
-pub struct Bonds;
+pub struct Bounds;
 
 const BONDS_FLOOR: f32 = -200.0;
-const BONDS_LEFT_WALL: f32 = 0.0;
-const BONDS_RIGHT_WALL: f32 = GAME_WIDTH;
+const BONDS_LEFT_WALL: f32 = - GAME_WIDTH / 2.0;
+const BONDS_RIGHT_WALL: f32 = GAME_WIDTH / 2.0;
 
-impl Bonds {
-    pub fn check_y(transform: &mut Transform) -> bool
+impl Bounds {
+    pub fn check_bounds_y(transform: &mut Transform) -> bool
     {
         if transform.translation.y < BONDS_FLOOR {
             transform.translation.y = BONDS_FLOOR;
@@ -103,7 +103,7 @@ impl Bonds {
         return false;
     }
 
-    pub fn check_x(transform: &mut Transform) -> bool {
+    pub fn check_bounds_x(transform: &mut Transform) -> bool {
         if transform.translation.x < BONDS_LEFT_WALL {
             transform.translation.x = BONDS_LEFT_WALL;
             return true;

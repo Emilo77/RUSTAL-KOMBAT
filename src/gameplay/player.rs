@@ -5,7 +5,7 @@ use bevy_rapier2d::parry::simba::simd::WideBoolF32x4;
 use rand::prelude::ThreadRng;
 use crate::AppState;
 
-use crate::gameplay::{Abilities, create_sprite_bundle, GameTextures, spawn_dynamic_object};
+use crate::gameplay::{Abilities, Bounds, create_sprite_bundle, GameTextures, spawn_dynamic_object};
 
 pub struct PlayerPlugin;
 
@@ -109,9 +109,7 @@ fn players_movement(mut player_query: Query<(&mut Player, &mut Transform)>,
                 if keyboard_input.pressed(KeyCode::D) {
                     transform.translation.x += player.speed * time.delta_seconds();
                 }
-                if keyboard_input.just_released(KeyCode::A)
-                    || keyboard_input.just_released(KeyCode::D) {
-                }
+                Bounds::check_bounds_x(&mut transform);
             }
             PlayerNum::Two => {
                 if keyboard_input.pressed(KeyCode::Left) {
@@ -120,9 +118,7 @@ fn players_movement(mut player_query: Query<(&mut Player, &mut Transform)>,
                 if keyboard_input.pressed(KeyCode::Right) {
                     transform.translation.x += player.speed * time.delta_seconds();
                 }
-                if keyboard_input.just_released(KeyCode::Left)
-                    || keyboard_input.just_released(KeyCode::Right) {
-                }
+                Bounds::check_bounds_x(&mut transform);
             }
         }
     }
