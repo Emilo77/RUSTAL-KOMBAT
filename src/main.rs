@@ -12,6 +12,9 @@ use crate::gameplay::{
 mod gameplay;
 mod menu;
 
+const GAME_WIDTH: f32 = 1280.0;
+const GAME_HEIGHT: f32 = 720.0;
+
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
     InGame,
@@ -26,8 +29,8 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .insert_resource(WindowDescriptor {
             title: "Rustal Combat".to_string(),
-            width: 1280.0,
-            height: 720.0,
+            width: GAME_WIDTH,
+            height: GAME_HEIGHT,
             resizable: false,
             // present_mode: PresentMode::Fifo,
             // decorations: true,
@@ -40,8 +43,6 @@ fn main() {
         .add_state(AppState::InGame)
         .add_plugin(GamePlugin)
         .add_plugin(ScoreboardPlugin)
-        .add_plugin(CombatPlugin)
-        .add_plugin(PowerupPlugin)
         .add_plugin(PlayerPlugin)
         .add_plugin(MenuPlugin)
         // .add_plugin(AiPlugin)

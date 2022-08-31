@@ -1,13 +1,25 @@
+use std::borrow::BorrowMut;
 use bevy::prelude::*;
+use bevy::utils::tracing::instrument::WithSubscriber;
+use bevy_rapier2d::parry::simba::simd::WideBoolF32x4;
 use rand::prelude::ThreadRng;
 use crate::AppState;
 
-use crate::gameplay::{create_sprite_bundle, GameTextures, spawn_dynamic_object};
+use crate::gameplay::{Abilities, create_sprite_bundle, GameTextures, spawn_dynamic_object};
 
 pub struct PlayerPlugin;
 
-const LEFT_PLAYER_CORDS: (f32, f32, f32) = (100.0, -200.0, 5.0);
-const RIGHT_PLAYER_CORDS: (f32, f32, f32) = (620.0, -200.0, 5.0);
+const LEFT_PLAYER_CORDS: (f32, f32, f32) = (-500.0, -200.0, 5.0);
+const RIGHT_PLAYER_CORDS: (f32, f32, f32) = (500.0, -200.0, 5.0);
+const PLAYER_BASIC_SPEED: f32 = 500.0;
+const PLAYER_MAX_SPEED: f32 = 700.0;
+const PLAYER_STARTING_HP: usize = 100;
+
+#[derive(Eq, PartialEq)]
+enum PlayerNum {
+    One,
+    Two,
+}
 
 enum PlayerSide {
     Left,
@@ -16,20 +28,27 @@ enum PlayerSide {
 
 #[derive(Component)]
 pub struct Player {
-    hp: u8,
-    velocity: f32,
-}
-
-impl Default for Player {
-    fn default() -> Self {
-        Player {
-            hp: 100,
-            velocity: 1.0,
-        }
-    }
+    num: PlayerNum,
+    hp: usize,
+    speed: f32,
+    max_speed: f32,
+    side: PlayerSide,
 }
 
 impl Player {
+    fn new(num: PlayerNum) -> Self {
+        Player {
+            hp: PLAYER_STARTING_HP,
+            speed: PLAYER_BASIC_SPEED,
+            max_speed: PLAYER_MAX_SPEED,
+            side: match num {
+                PlayerNum::One => { PlayerSide::Right }
+                PlayerNum::Two => { PlayerSide::Left }
+            },
+            num,
+        }
+    }
+
     fn spawn_left(commands: &mut Commands, game_textures: Res<GameTextures>, cords: (f32, f32,
                                                                                      f32)) {
         let mut player_entity = spawn_dynamic_object(
@@ -40,7 +59,8 @@ impl Player {
             None,
         );
         commands.entity(player_entity)
-            .insert(Player::default());
+            .insert(Player::new(PlayerNum::One))
+            .insert(Abilities::default());
     }
 
     fn spawn_right(commands: &mut Commands, game_textures: Res<GameTextures>,
@@ -53,7 +73,8 @@ impl Player {
             None,
         );
         commands.entity(player_entity)
-            .insert(Player::default());
+            .insert(Player::new(PlayerNum::Two))
+            .insert(Abilities::default());
     }
 }
 
@@ -61,49 +82,81 @@ pub fn spawn_players(
     mut commands: Commands,
     game_textures_1: Res<GameTextures>,
     game_textures_2: Res<GameTextures>,
-    entities: Query<(Entity)>,
 ) {
     Player::spawn_left(&mut commands, game_textures_1, LEFT_PLAYER_CORDS);
     Player::spawn_right(&mut commands, game_textures_2, RIGHT_PLAYER_CORDS);
-    for entity in entities.iter() {
-        commands.insert_resource(entity);
+}
+
+fn run_quicker(mut player: &mut Player) {
+    if player.speed < player.max_speed {
+        player.speed += 1.0;
     }
 }
 
-fn player1_movement(player_query: Query<(&Player, &mut Transform)>,
-                   keyboard_input: Res<Input<KeyCode>>) {
-    for (player, mut transform) in player_query.iter() {
-        if keyboard_input.pressed(KeyCode::Left) {
-            transform.translation.x - 1000.0;
-            print!("Left key pressed!");
-        }
-        if keyboard_input.pressed(KeyCode::Right) {
-            transform.translation.x + 1000.0;
-            print!("Right key pressed!");
+fn run_normal_speed(mut player: &mut Player) {
+    player.speed = PLAYER_BASIC_SPEED;
+}
+
+fn players_movement(mut player_query: Query<(&mut Player, &mut Transform)>,
+                    keyboard_input: Res<Input<KeyCode>>,
+                    time: Res<Time>) {
+    for (mut player, mut transform) in player_query.borrow_mut() {
+        match player.num {
+            PlayerNum::One => {
+                if keyboard_input.pressed(KeyCode::A) {
+                    transform.translation.x -= player.speed * time.delta_seconds();
+                }
+                if keyboard_input.pressed(KeyCode::D) {
+                    transform.translation.x += player.speed * time.delta_seconds();
+                }
+                if keyboard_input.just_released(KeyCode::A)
+                    || keyboard_input.just_released(KeyCode::D) {
+                }
+            }
+            PlayerNum::Two => {
+                if keyboard_input.pressed(KeyCode::Left) {
+                    transform.translation.x -= player.speed * time.delta_seconds();
+                }
+                if keyboard_input.pressed(KeyCode::Right) {
+                    transform.translation.x += player.speed * time.delta_seconds();
+                }
+                if keyboard_input.just_released(KeyCode::Left)
+                    || keyboard_input.just_released(KeyCode::Right) {
+                }
+            }
         }
     }
 }
 
-fn player2_movement(player_query: Query<(&Player, &mut Transform)>,
-                    keyboard_input: Res<Input<KeyCode>>) {
-    for (player, mut transform) in player_query.iter() {
-        if keyboard_input.pressed(KeyCode::A) {
-            transform.translation.x - 1000.0;
-            print!("Left key pressed!");
-        }
-        if keyboard_input.pressed(KeyCode::D) {
-            transform.translation.x + 1000.0;
-            print!("Right key pressed!");
+fn jumping(mut player_query: Query<(&mut Player, &mut Transform, &mut Abilities)>,
+                  keyboard_input: Res<Input<KeyCode>>,
+                  time: Res<Time>) {
+    for (mut player, mut transform, mut abilities) in player_query.borrow_mut() {
+        match player.num {
+            PlayerNum::One => {
+                Abilities::handle_all(&mut abilities, &mut transform);
+                if keyboard_input.just_pressed(KeyCode::W) {
+                    Abilities::handle_jump(&mut abilities, &mut transform);
+                }
+            }
+            PlayerNum::Two => {
+                Abilities::handle_all(&mut abilities, &mut transform);
+                if keyboard_input.just_pressed(KeyCode::Up) {
+                    Abilities::handle_jump(&mut abilities, &mut transform);
+                }
+            }
         }
     }
 }
-
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(spawn_players)
-            .add_system(player1_movement)
-            .add_system(player2_movement);
+        app.add_system_set(SystemSet::on_enter(AppState::InGame)
+            .with_system(spawn_players))
+            .add_system_set(SystemSet::on_update(AppState::InGame)
+                .with_system(players_movement)
+                .with_system(jumping));
+
         // .add_system(camera_following_players);
     }
 }

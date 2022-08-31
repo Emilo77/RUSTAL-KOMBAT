@@ -4,6 +4,7 @@ use bevy::{
     sprite::MaterialMesh2dBundle,
 };
 use bevy_rapier2d::prelude::*;
+use crate::GAME_WIDTH;
 
 const GRAVITY_SCALE_DEFAULT: f32 = 0.4;
 const VELOCITY_DEFAULT: f32 = 0.0;
@@ -75,7 +76,7 @@ impl Scoreboard {
     fn new() -> Scoreboard {
         Scoreboard {
             score1: 0,
-            score2: 0
+            score2: 0,
         }
     }
 }
@@ -85,3 +86,34 @@ struct HealthBar {
     //todo pasek zdrowia 1
     //todo pasek zdrowia 2
 }
+
+pub struct Bonds;
+
+const BONDS_FLOOR: f32 = -200.0;
+const BONDS_LEFT_WALL: f32 = 0.0;
+const BONDS_RIGHT_WALL: f32 = GAME_WIDTH;
+
+impl Bonds {
+    pub fn check_y(transform: &mut Transform) -> bool
+    {
+        if transform.translation.y < BONDS_FLOOR {
+            transform.translation.y = BONDS_FLOOR;
+            return true;
+        }
+        return false;
+    }
+
+    pub fn check_x(transform: &mut Transform) -> bool {
+        if transform.translation.x < BONDS_LEFT_WALL {
+            transform.translation.x = BONDS_LEFT_WALL;
+            return true;
+        }
+        if transform.translation.x > BONDS_RIGHT_WALL {
+            transform.translation.x = BONDS_RIGHT_WALL;
+            return true;
+        }
+        return false;
+    }
+}
+
+
