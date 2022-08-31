@@ -45,6 +45,5 @@ fn main() {
         .add_plugin(ScoreboardPlugin)
         .add_plugin(PlayerPlugin)
         .add_plugin(MenuPlugin)
-        // .add_plugin(AiPlugin)
         .run();
 }
