@@ -1,3 +1,4 @@
+use std::borrow::BorrowMut;
 use bevy::{prelude::*, render::texture::ImageSettings};
 use bevy_parallax::{
     LayerData, ParallaxCameraComponent, ParallaxMoveEvent, ParallaxPlugin, ParallaxResource,

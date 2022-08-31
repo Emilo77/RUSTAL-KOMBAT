@@ -20,7 +20,6 @@ pub enum AppState {
     InGame,
     MainMenu,
     EndMenu,
-    StopMenu,
 }
 
 fn main() {
@@ -37,13 +36,13 @@ fn main() {
             ..Default::default()
         })
         .insert_resource(ClearColor(Color::BLACK))
+        .add_state(AppState::MainMenu)
+        .add_plugin(MenuPlugin)
         .add_plugin(OwnAudioPlugin)
         .add_plugin(MapPlugin)
         .add_plugin(OwnCameraPlugin)
-        .add_state(AppState::InGame)
         .add_plugin(GamePlugin)
         .add_plugin(ScoreboardPlugin)
         .add_plugin(PlayerPlugin)
-        .add_plugin(MenuPlugin)
         .run();
 }

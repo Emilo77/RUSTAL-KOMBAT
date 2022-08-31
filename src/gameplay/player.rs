@@ -5,7 +5,7 @@ use bevy_rapier2d::parry::simba::simd::WideBoolF32x4;
 use rand::prelude::ThreadRng;
 use crate::AppState;
 
-use crate::gameplay::{Abilities, Bounds, create_sprite_bundle, dash_system, GameTextures, jumping, movement, overall_combat, spawn_dynamic_object};
+use crate::gameplay::{Abilities, Bounds, cleanup_all, create_sprite_bundle, dash_system, GameTextures, jumping, movement, overall_combat, spawn_dynamic_object};
 
 pub struct PlayerPlugin;
 
@@ -143,8 +143,6 @@ impl Plugin for PlayerPlugin {
                 .with_system(jumping)
                 .with_system(dash_system)
                 .with_system(overall_combat));
-
-        // .add_system(camera_following_players);
     }
 }
 
