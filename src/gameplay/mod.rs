@@ -22,6 +22,8 @@ mod camera;
 mod physics;
 mod healthbars;
 mod assets_handling;
+mod animation;
+
 
 
 pub struct GamePlugin;

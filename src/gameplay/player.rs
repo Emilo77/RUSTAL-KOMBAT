@@ -6,6 +6,7 @@ use rand::prelude::ThreadRng;
 use crate::AppState;
 
 use crate::gameplay::{Abilities, Bounds, cleanup_all, create_sprite_bundle, dash_system, GameTextures, jumping, kill, movement, overall_combat, spawn_dynamic_object};
+use crate::gameplay::animation::{spawn_animated, spawn_animated_sprite};
 
 pub struct PlayerPlugin;
 
@@ -57,6 +58,22 @@ pub struct Player {
     pub max_speed: f32,
     pub side: PlayerSide,
     pub controls: Controls,
+}
+
+impl Plugin for PlayerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_system_set(SystemSet::on_enter(AppState::InGame)
+            .with_system(spawn_players)
+            .with_system(spawn_animated))
+            .add_system_set(SystemSet::on_update(AppState::InGame)
+                .with_system(movement)
+                .with_system(jumping)
+                .with_system(dash_system)
+                .with_system(overall_combat)
+                .with_system(kill)
+                .with_system(handle_death)
+                );
+    }
 }
 
 impl Player {
@@ -153,18 +170,6 @@ fn handle_death(mut players: Query<(&mut Player)>, mut app_state: ResMut<State<A
 }
 
 
-impl Plugin for PlayerPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(AppState::InGame)
-            .with_system(spawn_players))
-            .add_system_set(SystemSet::on_update(AppState::InGame)
-                .with_system(movement)
-                .with_system(jumping)
-                .with_system(dash_system)
-                .with_system(overall_combat)
-                .with_system(kill)
-                .with_system(handle_death));
-    }
-}
+
 
 
