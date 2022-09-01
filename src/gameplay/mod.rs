@@ -18,10 +18,12 @@ mod player;
 mod utils;
 mod camera;
 mod physics;
+mod healthbars;
 
 #[derive(Component)]
 pub struct PhantomEntity;
 
+#[derive(Component)]
 pub struct GameTextures {
     pub player_left: Handle<Image>,
     pub player_right: Handle<Image>,

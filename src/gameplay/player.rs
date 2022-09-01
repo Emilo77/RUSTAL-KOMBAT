@@ -100,7 +100,7 @@ impl Player {
         let mut player_entity = spawn_dynamic_object(
             commands,
             create_sprite_bundle(game_textures.player_left.clone(),
-                                 (300.0, 300.0), cords),
+                                 (300.0, 150.0), cords),
             None,
             None,
         );
