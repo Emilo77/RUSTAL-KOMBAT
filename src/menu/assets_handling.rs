@@ -1,39 +1,32 @@
 use bevy::prelude::*;
 
-pub struct Textures {
-    pub main: Handle<Image>,
-    pub button: Handle<Image>,
-    pub button_pressed: Handle<Image>
+#[derive(Component)]
+pub struct MenuTextures {
+    pub starting_text: Handle<Image>,
+
+    pub win1_1: Handle<Image>,
+    pub win1_2: Handle<Image>,
+
+    pub win2_1: Handle<Image>,
+    pub win2_2: Handle<Image>,
+
+    pub draw1: Handle<Image>,
+    pub draw2: Handle<Image>,
 }
 
-impl Textures {
+impl MenuTextures {
     pub fn load(asset_server: Res<AssetServer>) -> Self {
-        Textures {
-            main: asset_server.load("images/menu.png"),
-            button: asset_server.load("images/button.png"),
-            button_pressed: asset_server.load("images/button_pressed.png"),
-        }
-    }
-}
+        MenuTextures {
+            starting_text: asset_server.load("images/menu/press_key.png"),
 
-pub struct MenuMaterials {
-    pub menu: UiColor,
-    pub normal_button: UiColor,
-    pub button_text: Color,
-    pub button_hovered: UiColor,
-    pub button_pressed: UiColor,
-    pub button_selected: UiColor,
-}
+            win1_1: asset_server.load("images/menu/win1_1.png"),
+            win1_2: asset_server.load("images/menu/win1_2.png"),
 
-impl Default for MenuMaterials {
-    fn default() -> Self {
-        MenuMaterials {
-            menu: Color::CRIMSON.into(),
-            normal_button: Color::rgb(0.15, 0.15, 0.15).into(),
-            button_text: Color::rgb(0.9, 0.9, 0.9),
-            button_hovered: Color::rgb(0.25, 0.25, 0.25).into(),
-            button_pressed: Color::rgb(0.35, 0.75, 0.35).into(),
-            button_selected: Color::rgb(0.35, 0.35, 0.35).into(),
+            win2_1: asset_server.load("images/menu/win2_1.png"),
+            win2_2: asset_server.load("images/menu/win2_2.png"),
+
+            draw1: asset_server.load("images/menu/draw1.png"),
+            draw2: asset_server.load("images/menu/draw2.png"),
         }
     }
 }

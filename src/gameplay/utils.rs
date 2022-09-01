@@ -5,6 +5,8 @@ use bevy::{
 };
 use bevy_rapier2d::prelude::*;
 use crate::GAME_WIDTH;
+use crate::gameplay::Strike;
+use crate::menu::{FAST_BLINKING, MenuEntities};
 
 const GRAVITY_SCALE_DEFAULT: f32 = 0.4;
 const VELOCITY_DEFAULT: f32 = 0.0;
@@ -90,7 +92,7 @@ struct HealthBar {
 pub struct Bounds;
 
 const BONDS_FLOOR: f32 = -200.0;
-const BONDS_LEFT_WALL: f32 = - GAME_WIDTH / 2.0;
+const BONDS_LEFT_WALL: f32 = -GAME_WIDTH / 2.0;
 const BONDS_RIGHT_WALL: f32 = GAME_WIDTH / 2.0;
 
 impl Bounds {
@@ -115,5 +117,7 @@ impl Bounds {
         return false;
     }
 }
+
+
 
 

@@ -1,31 +1,43 @@
-// use bevy::prelude::*;
-// use bevy::sprite::Rect;
-//
-// pub struct MenuData {
-//     pub menu_entity: Entity,
-//     pub camera_entity: Entity,
-// }
-//
-// pub fn setup_main(
-//     mut commands: Commands,
-// ) {
-//     let menu_entity = commands.spawn_bundle(menu_bundle).id();
-//     let camera_entity = commands.spawn_bundle(UiCameraConfig::default()).id();
-//     commands.insert_resource(MenuData {
-//         menu_entity,
-//         camera_entity,
-//     });
-// }
-//
-//
-//
-// fn menu_bundle() -> NodeBundle {
-//     NodeBundle {
-//         style: Style {
-//             flex_direction: FlexDirection::ColumnReverse,
-//             align_items: AlignItems::Center,
-//             ..default()
-//         },
-//             ..default()
-//     }
-// }
+use std::borrow::BorrowMut;
+use bevy::prelude::*;
+use crate::menu::MenuEntities;
+
+pub fn image_blinking(mut menu_images: Query<(&mut MenuEntities, &mut Visibility)>) {
+    for (mut image, mut visibility) in menu_images.borrow_mut() {
+        if image.blinking {
+            if image.current_time < 0.0 {
+                visibility.is_visible = !visibility.is_visible;
+                image.current_time = image.time;
+            } else {
+                image.current_time -= 1.0;
+            }
+        }
+    }
+}
+
+pub fn spawn_main_image(mut commands: &mut Commands,
+                        image: Handle<Image>,
+                        blinking: bool,
+                        blinking_time: f32) {
+    let main_image = commands.spawn_bundle(ImageBundle {
+        style: Style {
+            size: Size::new(Val::Px(750.0), Val::Px(450.0)),
+            position_type: PositionType::Absolute,
+            position: UiRect {
+                left: Val::Px(250.0),
+                bottom: Val::Px(150.0),
+                ..default()
+            },
+            ..default()
+        },
+        image: UiImage::from(image),
+        ..default()
+    }).id();
+
+    commands.entity(main_image).insert(MenuEntities {
+        menu_entity: main_image,
+        time: blinking_time,
+        current_time: blinking_time,
+        blinking,
+    });
+}

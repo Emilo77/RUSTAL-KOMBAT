@@ -109,7 +109,7 @@ impl Abilities {
     }
 
     pub fn handle_all(&mut self, player: &mut Player, transform: &mut Transform) {
-        if self.jump.is_active {
+        if self.jump.is_active && !self.dash.is_active {
             transform.translation.y += self.jump.current_power;
             self.jump.current_power -= GRAVITY_CONST;
 
@@ -178,5 +178,14 @@ pub fn dash_system(mut player_query: Query<(&mut Player, &mut Transform, &mut Ab
 pub fn overall_combat(mut player_query: Query<(&mut Player, &mut Transform, &mut Abilities)>) {
     for (mut player, mut transform, mut abilities) in player_query.borrow_mut() {
         Abilities::handle_all(&mut abilities, &mut player, &mut transform);
+    }
+}
+
+pub fn kill(mut player_query: Query<(&mut Player)>,
+                   keyboard_input: Res<Input<KeyCode>>) {
+    for mut player in player_query.borrow_mut() {
+        if keyboard_input.just_pressed(KeyCode::L) {
+            player.hp -= 200.0
+        }
     }
 }

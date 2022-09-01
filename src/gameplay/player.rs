@@ -5,37 +5,36 @@ use bevy_rapier2d::parry::simba::simd::WideBoolF32x4;
 use rand::prelude::ThreadRng;
 use crate::AppState;
 
-use crate::gameplay::{Abilities, Bounds, cleanup_all, create_sprite_bundle, dash_system, GameTextures, jumping, movement, overall_combat, spawn_dynamic_object};
+use crate::gameplay::{Abilities, Bounds, cleanup_all, create_sprite_bundle, dash_system, GameTextures, jumping, kill, movement, overall_combat, spawn_dynamic_object};
 
 pub struct PlayerPlugin;
 
 //CONTROLS
-const CONTROLS_PLAYER1_LEFT : KeyCode = KeyCode::A;
-const CONTROLS_PLAYER1_RIGHT : KeyCode = KeyCode::D;
-const CONTROLS_PLAYER1_JUMP : KeyCode = KeyCode::W;
-const CONTROLS_PLAYER1_DASH : KeyCode = KeyCode::S;
-const CONTROLS_PLAYER1_ATTACK : KeyCode = KeyCode::Space;
+const CONTROLS_PLAYER1_LEFT: KeyCode = KeyCode::A;
+const CONTROLS_PLAYER1_RIGHT: KeyCode = KeyCode::D;
+const CONTROLS_PLAYER1_JUMP: KeyCode = KeyCode::W;
+const CONTROLS_PLAYER1_DASH: KeyCode = KeyCode::S;
+const CONTROLS_PLAYER1_ATTACK: KeyCode = KeyCode::Space;
 
-const CONTROLS_PLAYER2_LEFT : KeyCode = KeyCode::Left;
-const CONTROLS_PLAYER2_RIGHT : KeyCode = KeyCode::Right;
-const CONTROLS_PLAYER2_JUMP : KeyCode = KeyCode::Up;
-const CONTROLS_PLAYER2_DASH : KeyCode = KeyCode::Down;
-const CONTROLS_PLAYER2_ATTACK : KeyCode = KeyCode::Numpad0;
+const CONTROLS_PLAYER2_LEFT: KeyCode = KeyCode::Left;
+const CONTROLS_PLAYER2_RIGHT: KeyCode = KeyCode::Right;
+const CONTROLS_PLAYER2_JUMP: KeyCode = KeyCode::Up;
+const CONTROLS_PLAYER2_DASH: KeyCode = KeyCode::Down;
+const CONTROLS_PLAYER2_ATTACK: KeyCode = KeyCode::Numpad0;
 
 pub struct Controls {
     pub left: KeyCode,
     pub right: KeyCode,
     pub jump: KeyCode,
     pub dash: KeyCode,
-    pub attack: KeyCode
+    pub attack: KeyCode,
 }
 
 const LEFT_PLAYER_CORDS: (f32, f32, f32) = (-500.0, -200.0, 5.0);
 const RIGHT_PLAYER_CORDS: (f32, f32, f32) = (500.0, -200.0, 5.0);
 const PLAYER_BASIC_SPEED: f32 = 5.0;
 const PLAYER_MAX_SPEED: f32 = 7.0;
-const PLAYER_STARTING_HP: usize = 100;
-
+const PLAYER_STARTING_HP: f32 = 100.0;
 
 
 #[derive(Eq, PartialEq)]
@@ -53,7 +52,7 @@ pub enum PlayerSide {
 #[derive(Component)]
 pub struct Player {
     pub num: PlayerNum,
-    pub hp: usize,
+    pub hp: f32,
     pub speed: f32,
     pub max_speed: f32,
     pub side: PlayerSide,
@@ -133,6 +132,26 @@ pub fn spawn_players(
     Player::spawn_right(&mut commands, game_textures_2, RIGHT_PLAYER_CORDS);
 }
 
+fn handle_death(mut players: Query<(&mut Player)>, mut app_state: ResMut<State<AppState>>) {
+    let mut players_killed: (bool, bool) = (false, false);
+
+    for player in players.borrow_mut() {
+        if player.hp <= 0.0 {
+            match player.num {
+                PlayerNum::One => { players_killed.0 = true; }
+                PlayerNum::Two => { players_killed.1 = true; }
+            }
+        }
+    }
+
+    match players_killed {
+        (true, true) => { app_state.set(AppState::EndMenuDraw).unwrap(); }
+        (false, true) => { app_state.set(AppState::EndMenuWinP1).unwrap(); }
+        (true, false) => { app_state.set(AppState::EndMenuWinP2).unwrap(); }
+        _ => {}
+    }
+}
+
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
@@ -142,7 +161,9 @@ impl Plugin for PlayerPlugin {
                 .with_system(movement)
                 .with_system(jumping)
                 .with_system(dash_system)
-                .with_system(overall_combat));
+                .with_system(overall_combat)
+                .with_system(kill)
+                .with_system(handle_death));
     }
 }
 

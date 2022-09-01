@@ -19,7 +19,10 @@ const GAME_HEIGHT: f32 = 720.0;
 pub enum AppState {
     InGame,
     MainMenu,
-    EndMenu,
+
+    EndMenuWinP1,
+    EndMenuWinP2,
+    EndMenuDraw
 }
 
 fn main() {
