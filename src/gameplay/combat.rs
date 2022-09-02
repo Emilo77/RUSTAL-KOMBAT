@@ -5,12 +5,12 @@ use crate::gameplay::{Bounds, Player, PlayerNum, PlayerSide};
 const GRAVITY_CONST: f32 = 0.2;
 
 //Dash
-const DASH_COOLDOWN: f32 = 1.0;
+const DASH_COOLDOWN: f32 = 10.0;
 const DASH_SPEED_BONUS: f32 = 3.0;
 const DASH_DURATION: f32 = 0.25;
-const DASH_DAMAGE: f32 = 10.0;
+const DASH_DAMAGE: i32 = 11;
 //Jump
-const JUMP_POWER: f32 = 10.0;
+const JUMP_POWER: f32 = 13.0;
 
 const PLAYER_HURTING_TIME: f32 = 30.0;
 
@@ -19,7 +19,7 @@ pub struct Dash {
     cooldown: f32,
     speed_bonus: f32,
     duration: f32,
-    damage: f32,
+    damage: i32,
     pub is_active: bool,
     side: PlayerSide,
 }
@@ -46,7 +46,7 @@ impl Abilities {
                 is_active: false,
             },
             dash: Dash {
-                cooldown: DASH_COOLDOWN,
+                cooldown: 0.0,
                 speed_bonus: DASH_SPEED_BONUS,
                 duration: DASH_DURATION,
                 damage: DASH_DAMAGE,
@@ -71,13 +71,17 @@ impl Abilities {
     }
 
     pub fn handle_dash(&mut self, side: PlayerSide) {
-        if Abilities::jump_possible(&self) {
+        if self.dash.cooldown <= 0.0 {
             self.dash.is_active = true;
             self.dash.side = side;
         }
     }
 
     pub fn handle_all(&mut self, player: &mut Player, transform: &mut Transform) {
+        if self.dash.cooldown > 0.0 {
+            self.dash.cooldown -= 0.1;
+        }
+
         if self.jump.is_active && !self.dash.is_active {
             transform.translation.y += self.jump.current_power;
             self.jump.current_power -= GRAVITY_CONST;
@@ -102,6 +106,7 @@ impl Abilities {
             if self.dash.duration < 0.0 {
                 self.dash.is_active = false;
                 self.dash.duration = DASH_DURATION;
+                self.dash.cooldown = DASH_COOLDOWN;
             }
         }
     }
@@ -133,8 +138,8 @@ pub fn jumping(mut player_query: Query<(&mut Player, &mut Abilities)>,
     }
 }
 
-pub fn dash_system(mut player_query: Query<(&mut Player, &mut Abilities)>,
-                   keyboard_input: Res<Input<KeyCode>>) {
+pub fn dashing(mut player_query: Query<(&mut Player, &mut Abilities)>,
+               keyboard_input: Res<Input<KeyCode>>) {
     for (player, mut abilities) in player_query.borrow_mut() {
         if keyboard_input.just_pressed(player.controls.dash) {
             Abilities::handle_dash(&mut abilities, player.side);
@@ -150,16 +155,13 @@ pub fn overall_combat(mut player_query: Query<(&mut Player, &mut Transform, &mut
 
 pub fn kill(mut player_query: Query<&mut Player>,
             keyboard_input: Res<Input<KeyCode>>) {
-
     for mut player in player_query.borrow_mut() {
-
         if player.num == PlayerNum::One {
             if player.hurting > 0.0 {
                 player.hurting -= 1.0;
-
             } else if keyboard_input.just_pressed(KeyCode::L) {
                 player.hurting = PLAYER_HURTING_TIME;
-                player.hp -= 7;
+                player.hp -= DASH_DAMAGE;
             }
         }
     }

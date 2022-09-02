@@ -1,13 +1,13 @@
 use std::borrow::BorrowMut;
 use bevy::prelude::*;
-use crate::gameplay::animation::spawn_animated_sprite;
+use crate::gameplay::animation::spawn_animated_object;
 use crate::gameplay::{GameTextures, Player, PlayerNum, PlayerNumComponent};
 
 
 pub fn spawn_dragon(commands: Commands,
                     textures: Res<GameTextures>,
                     texture_atlases: ResMut<Assets<TextureAtlas>>) {
-    spawn_animated_sprite(commands, textures.dragon.clone(), texture_atlases,
+    spawn_animated_object(commands, textures.dragon.clone(), texture_atlases,
                           Vec2::new(500.0, 400.0),
                           (1, 1),
                           Vec2::new(200.0, 160.0),
@@ -19,7 +19,7 @@ pub fn spawn_dragon(commands: Commands,
 pub fn spawn_healthbar1(commands: Commands,
                         textures: Res<GameTextures>,
                         texture_atlases: ResMut<Assets<TextureAtlas>>) {
-    spawn_animated_sprite(commands, textures.healthbar1.clone(), texture_atlases,
+    spawn_animated_object(commands, textures.healthbar1.clone(), texture_atlases,
                           Vec2::new(960.0, 168.0),
                           (1, 13),
                           Vec2::new(300.0, 52.5),
@@ -31,7 +31,7 @@ pub fn spawn_healthbar1(commands: Commands,
 pub fn spawn_healthbar2(commands: Commands,
                         textures: Res<GameTextures>,
                         texture_atlases: ResMut<Assets<TextureAtlas>>) {
-    spawn_animated_sprite(commands, textures.healthbar2.clone(), texture_atlases,
+    spawn_animated_object(commands, textures.healthbar2.clone(), texture_atlases,
                           Vec2::new(960.0, 168.0),
                           (1, 13),
                           Vec2::new(300.0, 52.5),

@@ -6,30 +6,36 @@ use crate::GAME_WIDTH;
 const GRAVITY_SCALE_DEFAULT: f32 = 0.4;
 const VELOCITY_DEFAULT: f32 = 0.0;
 
-pub fn create_sprite_bundle(
-    texture: Handle<Image>,
-    (x_size, y_size): (f32, f32),
-    (x_translation, y_translation, z_translation): (f32, f32, f32),
-) -> SpriteBundle {
-    SpriteBundle {
-        texture,
-        sprite: Sprite {
-            custom_size: Some(Vec2::new(x_size, y_size)),
+pub fn generate_sprite_sheet(
+    image: Handle<Image>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    tile_size: Vec2,
+    grid: (usize, usize),
+    size: Vec2,
+    cords: Vec3,
+) -> SpriteSheetBundle {
+    let texture_handle = image;
+    let texture_atlas = TextureAtlas::from_grid(texture_handle, tile_size, grid.0, grid.1);
+    let texture_atlas_handle = texture_atlases.add(texture_atlas);
+    SpriteSheetBundle {
+        texture_atlas: texture_atlas_handle,
+        transform: Transform::from_xyz(cords.x, cords.y, cords.z),
+        sprite: TextureAtlasSprite {
+            custom_size: Some(size),
             ..default()
         },
-        transform: Transform::from_xyz(x_translation, y_translation, z_translation),
         ..default()
     }
 }
 
 pub fn spawn_dynamic_object(
     commands: &mut Commands,
-    sprite: SpriteBundle,
+    spritesheet: SpriteSheetBundle,
     x_velocity: Option<f32>,
     gravity_scale: Option<f32>,
 ) -> Entity {
     commands
-        .spawn_bundle(sprite)
+        .spawn_bundle(spritesheet)
         .insert(RigidBody::Dynamic)
         .insert(LockedAxes::ROTATION_LOCKED)
         .insert(Sleeping::disabled())
@@ -41,6 +47,7 @@ pub fn spawn_dynamic_object(
         )))
         .id()
 }
+
 
 const BONDS_FLOOR: f32 = -200.0;
 const BONDS_LEFT_WALL: f32 = -GAME_WIDTH / 2.0;

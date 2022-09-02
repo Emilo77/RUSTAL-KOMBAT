@@ -2,10 +2,7 @@ use std::borrow::BorrowMut;
 use bevy::prelude::*;
 use crate::AppState;
 
-use crate::gameplay::{Abilities, GameTextures,
-                      create_sprite_bundle,
-                      dash_system, jumping, kill, movement,
-                      overall_combat, spawn_dynamic_object};
+use crate::gameplay::{Abilities, GameTextures, dashing, jumping, kill, movement, overall_combat, spawn_dynamic_object, generate_sprite_sheet};
 use crate::gameplay::boards::{animate_healthbars, spawn_dragon,
                               spawn_healthbar1, spawn_healthbar2};
 
@@ -76,7 +73,8 @@ pub struct Player {
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(SystemSet::on_enter(AppState::InGame)
-            .with_system(spawn_players)
+            .with_system(spawn_player1)
+            .with_system(spawn_player2)
             .with_system(spawn_dragon)
             .with_system(spawn_healthbar1)
             .with_system(spawn_healthbar2))
@@ -84,10 +82,52 @@ impl Plugin for PlayerPlugin {
                 .with_system(animate_healthbars)
                 .with_system(movement)
                 .with_system(jumping)
-                .with_system(dash_system)
+                .with_system(dashing)
                 .with_system(overall_combat)
                 .with_system(kill)
                 .with_system(handle_death));
+    }
+}
+
+pub fn spawn_player1(
+    mut commands: Commands,
+    game_textures: Res<GameTextures>,
+    texture_atlases: ResMut<Assets<TextureAtlas>>,
+) {
+    Player::spawn(&mut commands,
+                  game_textures,
+                  texture_atlases,
+                  PlayerNum::One);
+}
+
+pub fn spawn_player2(
+    mut commands: Commands,
+    game_textures: Res<GameTextures>,
+    texture_atlases: ResMut<Assets<TextureAtlas>>,
+) {
+    Player::spawn(&mut commands,
+                  game_textures,
+                  texture_atlases,
+                  PlayerNum::Two);
+}
+
+fn handle_death(mut players: Query<&mut Player>, mut app_state: ResMut<State<AppState>>) {
+    let mut players_killed: (bool, bool) = (false, false);
+
+    for player in players.borrow_mut() {
+        if player.hp <= 0 {
+            match player.num {
+                PlayerNum::One => { players_killed.0 = true; }
+                PlayerNum::Two => { players_killed.1 = true; }
+            }
+        }
+    }
+
+    match players_killed {
+        (true, true) => { app_state.set(AppState::EndMenuDraw).unwrap(); }
+        (false, true) => { app_state.set(AppState::EndMenuWinP1).unwrap(); }
+        (true, false) => { app_state.set(AppState::EndMenuWinP2).unwrap(); }
+        _ => {}
     }
 }
 
@@ -125,64 +165,34 @@ impl Player {
         }
     }
 
-    fn spawn_left(commands: &mut Commands, game_textures: Res<GameTextures>, cords: (f32, f32,
-                                                                                     f32)) {
-        let player_entity = spawn_dynamic_object(
-            commands,
-            create_sprite_bundle(game_textures.player_left.clone(),
-                                 (300.0, 150.0), cords),
-            None,
-            None,
-        );
-        commands.entity(player_entity)
-            .insert(Player::new(PlayerNum::One))
-            .insert(Abilities::default());
-    }
-
-    fn spawn_right(commands: &mut Commands, game_textures: Res<GameTextures>,
-                   cords: (f32, f32, f32)) {
-        let player_entity = spawn_dynamic_object(
-            commands,
-            create_sprite_bundle(game_textures.player_right.clone(),
-                                 (300.0, 300.0), cords),
-            None,
-            None,
-        );
-        commands.entity(player_entity)
-            .insert(Player::new(PlayerNum::Two))
-            .insert(Abilities::default());
-    }
-}
-
-pub fn spawn_players(
-    mut commands: Commands,
-    game_textures_1: Res<GameTextures>,
-    game_textures_2: Res<GameTextures>,
-) {
-    Player::spawn_left(&mut commands, game_textures_1, LEFT_PLAYER_CORDS);
-    Player::spawn_right(&mut commands, game_textures_2, RIGHT_PLAYER_CORDS);
-}
-
-fn handle_death(mut players: Query<&mut Player>, mut app_state: ResMut<State<AppState>>) {
-    let mut players_killed: (bool, bool) = (false, false);
-
-    for player in players.borrow_mut() {
-        if player.hp <= 0 {
-            match player.num {
-                PlayerNum::One => { players_killed.0 = true; }
-                PlayerNum::Two => { players_killed.1 = true; }
-            }
+    fn spawn(commands: &mut Commands,
+             game_textures: Res<GameTextures>,
+             texture_atlases: ResMut<Assets<TextureAtlas>>,
+             player_num: PlayerNum) {
+        let cords: Vec3;
+        match player_num {
+            PlayerNum::One => { cords = Vec3::from(LEFT_PLAYER_CORDS); }
+            PlayerNum::Two => { cords = Vec3::from(RIGHT_PLAYER_CORDS); }
         }
-    }
 
-    match players_killed {
-        (true, true) => { app_state.set(AppState::EndMenuDraw).unwrap(); }
-        (false, true) => { app_state.set(AppState::EndMenuWinP1).unwrap(); }
-        (true, false) => { app_state.set(AppState::EndMenuWinP2).unwrap(); }
-        _ => {}
+        let player_entity = spawn_dynamic_object(
+            commands,
+            generate_sprite_sheet(
+                game_textures.player_left.clone(),
+                texture_atlases,
+                Vec2::new(520.0, 1152.0),
+                (1, 1),
+                Vec2::new(100.0, 221.54),
+                cords),
+            None,
+            None,
+        );
+
+        commands.entity(player_entity)
+            .insert(Player::new(player_num))
+            .insert(Abilities::default());
     }
 }
-
 
 
 
