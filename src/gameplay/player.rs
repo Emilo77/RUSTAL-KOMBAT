@@ -6,7 +6,7 @@ use rand::prelude::ThreadRng;
 use crate::AppState;
 
 use crate::gameplay::{Abilities, Bounds, cleanup_all, create_sprite_bundle, dash_system, GameTextures, jumping, kill, movement, overall_combat, spawn_dynamic_object};
-use crate::gameplay::animation::{animate_sprite, spawn_animated_sprite, spawn_dragon, spawn_healthbar1, spawn_healthbar2};
+use crate::gameplay::animation::{animate_healthbars, spawn_animated_sprite, spawn_dragon, spawn_healthbar1, spawn_healthbar2};
 
 pub struct PlayerPlugin;
 
@@ -37,6 +37,19 @@ const PLAYER_BASIC_SPEED: f32 = 5.0;
 const PLAYER_MAX_SPEED: f32 = 7.0;
 const PLAYER_STARTING_HP: f32 = 100.0;
 
+
+#[derive(Component)]
+pub struct PlayerNumComponent {
+    pub num: PlayerNum
+}
+
+impl PlayerNumComponent {
+    pub fn new(num: PlayerNum) -> Self {
+        PlayerNumComponent {
+            num
+        }
+    }
+}
 
 #[derive(Eq, PartialEq)]
 pub enum PlayerNum {
@@ -75,7 +88,7 @@ impl Plugin for PlayerPlugin {
                 .with_system(overall_combat)
                 .with_system(kill)
                 .with_system(handle_death)
-                .with_system(animate_sprite)
+                .with_system(animate_healthbars)
                 );
     }
 }

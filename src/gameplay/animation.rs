@@ -2,7 +2,7 @@ use std::borrow::BorrowMut;
 use bevy::prelude::*;
 use bevy::render::settings::Backends;
 use crate::CursorIcon::Default;
-use crate::gameplay::{GameTextures, Player};
+use crate::gameplay::{GameTextures, Player, PlayerNum, PlayerNumComponent};
 
 pub fn generate_sprite_sheet(
     image: Handle<Image>,
@@ -33,10 +33,11 @@ pub fn spawn_animated_sprite(mut commands: Commands,
                              tile_size: Vec2,
                              grid: (usize, usize),
                              size: Vec2,
-                             cords: Vec3) {
+                             cords: Vec3,
+                             num: PlayerNum) {
     commands
         .spawn_bundle(generate_sprite_sheet(image, texture_atlases, tile_size, grid, size, cords))
-        .insert(AnimationTimer(Timer::from_seconds(0.1, true)));
+        .insert(PlayerNumComponent::new(num));
 }
 
 pub fn spawn_dragon(mut commands: Commands,
@@ -47,6 +48,7 @@ pub fn spawn_dragon(mut commands: Commands,
                           (1, 1),
                           Vec2::new(200.0, 160.0),
                           Vec3::new(0.0, 280.0, 5.0),
+                          PlayerNum::One,
     );
 }
 
@@ -58,6 +60,7 @@ pub fn spawn_healthbar1(mut commands: Commands,
                           (1, 13),
                           Vec2::new(300.0, 52.5),
                           Vec3::new(-250.0, 300.0, 5.0),
+                          PlayerNum::One,
     );
 }
 
@@ -69,31 +72,22 @@ pub fn spawn_healthbar2(mut commands: Commands,
                           (1, 13),
                           Vec2::new(300.0, 52.5),
                           Vec3::new(250.0, 300.0, 5.0),
+                          PlayerNum::Two,
     );
 }
 
-#[derive(Component, Deref, DerefMut)]
-pub struct AnimationTimer(Timer);
-
-pub fn animate_sprite(
-    time: Res<Time>,
+pub fn animate_healthbars(
     texture_atlases: Res<Assets<TextureAtlas>>,
     mut query: Query<(
-        &mut AnimationTimer,
         &mut TextureAtlasSprite,
-        &Handle<TextureAtlas>)>,
+        &Handle<TextureAtlas>,
+        &PlayerNumComponent)>,
     mut player_query: Query<(&mut Player)>,
 ) {
-    for (mut timer, mut sprite, texture_atlas_handle) in &mut query {
-        timer.tick(time.delta());
-
+    for (mut sprite, texture_atlas_handle, healthbar_num) in &mut query {
         let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
-        if sprite.index > 6 {
-            if timer.just_finished() {
-                sprite.index = (sprite.index + 6) % texture_atlas.textures.len();
-            }
-        } else {
-            for player in player_query.borrow_mut() {
+        for player in player_query.borrow_mut() {
+            if healthbar_num.num == player.num {
                 if player.hurting > 0.0 {
                     match player.hp {
                         81.0..=100.0 => { sprite.index = 6 % texture_atlas.textures.len(); }
@@ -119,4 +113,5 @@ pub fn animate_sprite(
         }
     }
 }
+
 
