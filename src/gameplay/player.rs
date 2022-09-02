@@ -6,7 +6,7 @@ use rand::prelude::ThreadRng;
 use crate::AppState;
 
 use crate::gameplay::{Abilities, Bounds, cleanup_all, create_sprite_bundle, dash_system, GameTextures, jumping, kill, movement, overall_combat, spawn_dynamic_object};
-use crate::gameplay::animation::{spawn_animated, spawn_animated_sprite};
+use crate::gameplay::animation::{animate_sprite, spawn_animated_sprite, spawn_dragon, spawn_healthbar1, spawn_healthbar2};
 
 pub struct PlayerPlugin;
 
@@ -58,13 +58,16 @@ pub struct Player {
     pub max_speed: f32,
     pub side: PlayerSide,
     pub controls: Controls,
+    pub hurting: f32,
 }
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(SystemSet::on_enter(AppState::InGame)
             .with_system(spawn_players)
-            .with_system(spawn_animated))
+            .with_system(spawn_dragon)
+            .with_system(spawn_healthbar1)
+            .with_system(spawn_healthbar2))
             .add_system_set(SystemSet::on_update(AppState::InGame)
                 .with_system(movement)
                 .with_system(jumping)
@@ -72,6 +75,7 @@ impl Plugin for PlayerPlugin {
                 .with_system(overall_combat)
                 .with_system(kill)
                 .with_system(handle_death)
+                .with_system(animate_sprite)
                 );
     }
 }
@@ -107,7 +111,7 @@ impl Player {
                 }
             },
             num,
-
+            hurting: 0.0,
         }
     }
 

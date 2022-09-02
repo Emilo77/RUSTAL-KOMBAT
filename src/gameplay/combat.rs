@@ -18,7 +18,7 @@ const JUMP_POWER: f32 = 10.0;
 //Strike
 const STRIKE_COOLDOWN: f32 = 0.3;
 const STRIKE_DAMAGE: f32 = 3.0;
-
+const PLAYER_HURTING_TIME: f32 = 30.0;
 
 #[derive(Component)]
 pub struct Dash {
@@ -158,7 +158,6 @@ pub fn movement(mut player_query: Query<(&mut Player, &mut Transform, &mut Abili
 pub fn jumping(mut player_query: Query<(&mut Player, &mut Transform, &mut Abilities)>,
                keyboard_input: Res<Input<KeyCode>>) {
     for (mut player, mut transform, mut abilities) in player_query.borrow_mut() {
-
         if keyboard_input.just_pressed(player.controls.jump) {
             Abilities::handle_jump(&mut abilities, &mut transform);
         }
@@ -168,7 +167,6 @@ pub fn jumping(mut player_query: Query<(&mut Player, &mut Transform, &mut Abilit
 pub fn dash_system(mut player_query: Query<(&mut Player, &mut Transform, &mut Abilities)>,
                    keyboard_input: Res<Input<KeyCode>>) {
     for (mut player, mut transform, mut abilities) in player_query.borrow_mut() {
-
         if keyboard_input.just_pressed(player.controls.dash) {
             Abilities::handle_dash(&mut abilities, &mut transform, player.side);
         }
@@ -182,10 +180,18 @@ pub fn overall_combat(mut player_query: Query<(&mut Player, &mut Transform, &mut
 }
 
 pub fn kill(mut player_query: Query<(&mut Player)>,
-                   keyboard_input: Res<Input<KeyCode>>) {
+            keyboard_input: Res<Input<KeyCode>>) {
+
     for mut player in player_query.borrow_mut() {
-        if keyboard_input.just_pressed(KeyCode::L) {
-            player.hp -= 200.0
+
+        if player.num == PlayerNum::One {
+            if (player.hurting > 0.0) {
+                player.hurting -= 1.0;
+
+            } else if keyboard_input.just_pressed(KeyCode::L) {
+                player.hurting = PLAYER_HURTING_TIME;
+                player.hp -= 7.0;
+            }
         }
     }
 }

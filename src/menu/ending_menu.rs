@@ -49,8 +49,8 @@ pub fn setup_end_menu_p2(mut commands: Commands, textures: Res<MenuTextures>) {
 }
 
 pub fn setup_end_menu_draw(mut commands: Commands, textures: Res<MenuTextures>) {
-    spawn_main_image(&mut commands, textures.win2_1.clone(),
+    spawn_main_image(&mut commands, textures.draw1.clone(),
                      false, SLOW_BLINKING);
-    spawn_main_image(&mut commands, textures.win2_2.clone(),
+    spawn_main_image(&mut commands, textures.draw2.clone(),
                      true, SLOW_BLINKING)
 }
