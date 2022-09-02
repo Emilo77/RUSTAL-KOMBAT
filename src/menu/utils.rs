@@ -18,14 +18,17 @@ pub fn image_blinking(mut menu_images: Query<(&mut MenuEntities, &mut Visibility
 pub fn spawn_main_image(mut commands: &mut Commands,
                         image: Handle<Image>,
                         blinking: bool,
-                        blinking_time: f32) {
+                        blinking_time: f32,
+                        pixels: (f32, f32),
+                        position: (f32, f32))
+{
     let main_image = commands.spawn_bundle(ImageBundle {
         style: Style {
-            size: Size::new(Val::Px(750.0), Val::Px(450.0)),
+            size: Size::new(Val::Px(pixels.0), Val::Px(pixels.1)),
             position_type: PositionType::Absolute,
             position: UiRect {
-                left: Val::Px(250.0),
-                bottom: Val::Px(150.0),
+                left: Val::Px(position.0),
+                bottom: Val::Px(position.1),
                 ..default()
             },
             ..default()

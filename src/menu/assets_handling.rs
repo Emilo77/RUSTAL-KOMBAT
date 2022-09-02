@@ -12,6 +12,8 @@ pub struct MenuTextures {
 
     pub draw1: Handle<Image>,
     pub draw2: Handle<Image>,
+
+    pub play_again: Handle<Image>,
 }
 
 impl MenuTextures {
@@ -27,6 +29,8 @@ impl MenuTextures {
 
             draw1: asset_server.load("images/menu/draw1.png"),
             draw2: asset_server.load("images/menu/draw2.png"),
+
+            play_again: asset_server.load("images/menu/play_again.png"),
         }
     }
 }

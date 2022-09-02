@@ -14,9 +14,15 @@ mod utils;
 mod starting_menu;
 mod ending_menu;
 
-pub const FAST_BLINKING: f32 = 20.0;
+pub const FAST_BLINKING: f32 = 50.0;
 pub const SLOW_BLINKING: f32 = 50.0;
+pub const SUPER_SLOW_BLINKING: f32 = 150.0;
 
+pub const MAIN_IMAGE_POSITION: (f32, f32) = (250.0, 150.0);
+pub const MAIN_IMAGE_SIZE: (f32, f32) = (750.0, 450.0);
+
+pub const BELOW_IMAGE_SIZE: (f32, f32) = (300.0, 97.07);
+pub const BELOW_IMAGE_POSITION: (f32, f32) = (600.0, 30.0);
 
 pub struct MenuPlugin;
 

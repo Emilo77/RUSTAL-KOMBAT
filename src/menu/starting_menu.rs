@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use crate::AppState;
 use crate::gameplay::{GameTextures};
-use crate::menu::{back_to_game, cleanup_menu, FAST_BLINKING};
+use crate::menu::{back_to_game, cleanup_menu, FAST_BLINKING, MAIN_IMAGE_POSITION, MAIN_IMAGE_SIZE};
 use crate::menu::assets_handling::MenuTextures;
 use crate::menu::utils::*;
 
@@ -20,5 +20,6 @@ impl Plugin for StartingMenuPlugin {
 }
 
 fn setup_main_menu(mut commands: Commands, textures: Res<MenuTextures>) {
-    spawn_main_image(&mut commands, textures.starting_text.clone(), true, FAST_BLINKING)
+    spawn_main_image(&mut commands, textures.starting_text.clone(), true,
+                     FAST_BLINKING, MAIN_IMAGE_SIZE, MAIN_IMAGE_POSITION);
 }
