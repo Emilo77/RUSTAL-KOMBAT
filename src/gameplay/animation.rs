@@ -1,8 +1,5 @@
-use std::borrow::BorrowMut;
 use bevy::prelude::*;
-use bevy::render::settings::Backends;
-use crate::CursorIcon::Default;
-use crate::gameplay::{GameTextures, Player, PlayerNum, PlayerNumComponent};
+use crate::gameplay::{PlayerNum, PlayerNumComponent};
 
 pub fn generate_sprite_sheet(
     image: Handle<Image>,
@@ -28,7 +25,7 @@ pub fn generate_sprite_sheet(
 
 pub fn spawn_animated_sprite(mut commands: Commands,
                              image: Handle<Image>,
-                             mut texture_atlases:
+                             texture_atlases:
                              ResMut<Assets<TextureAtlas>>,
                              tile_size: Vec2,
                              grid: (usize, usize),

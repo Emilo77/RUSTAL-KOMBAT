@@ -1,16 +1,13 @@
 use std::borrow::BorrowMut;
 use bevy::prelude::*;
-use bevy::utils::tracing::instrument::WithSubscriber;
-use bevy_rapier2d::parry::simba::simd::WideBoolF32x4;
-use rand::prelude::ThreadRng;
 use crate::AppState;
 
-use crate::gameplay::{Abilities, Bounds, GameTextures,
-                      cleanup_all, create_sprite_bundle,
+use crate::gameplay::{Abilities, GameTextures,
+                      create_sprite_bundle,
                       dash_system, jumping, kill, movement,
                       overall_combat, spawn_dynamic_object};
-use crate::gameplay::animation::*;
-use crate::gameplay::boards::{animate_healthbars, spawn_dragon, spawn_healthbar1, spawn_healthbar2};
+use crate::gameplay::boards::{animate_healthbars, spawn_dragon,
+                              spawn_healthbar1, spawn_healthbar2};
 
 pub struct PlayerPlugin;
 
@@ -38,7 +35,7 @@ pub struct Controls {
 const LEFT_PLAYER_CORDS: (f32, f32, f32) = (-500.0, -200.0, 5.0);
 const RIGHT_PLAYER_CORDS: (f32, f32, f32) = (500.0, -200.0, 5.0);
 const PLAYER_BASIC_SPEED: f32 = 5.0;
-const PLAYER_STARTING_HP: f32 = 100.0;
+const PLAYER_STARTING_HP: i32 = 100;
 
 
 #[derive(Component)]
@@ -69,7 +66,7 @@ pub enum PlayerSide {
 #[derive(Component)]
 pub struct Player {
     pub num: PlayerNum,
-    pub hp: f32,
+    pub hp: i32,
     pub speed: f32,
     pub side: PlayerSide,
     pub controls: Controls,
@@ -130,7 +127,7 @@ impl Player {
 
     fn spawn_left(commands: &mut Commands, game_textures: Res<GameTextures>, cords: (f32, f32,
                                                                                      f32)) {
-        let mut player_entity = spawn_dynamic_object(
+        let player_entity = spawn_dynamic_object(
             commands,
             create_sprite_bundle(game_textures.player_left.clone(),
                                  (300.0, 150.0), cords),
@@ -144,7 +141,7 @@ impl Player {
 
     fn spawn_right(commands: &mut Commands, game_textures: Res<GameTextures>,
                    cords: (f32, f32, f32)) {
-        let mut player_entity = spawn_dynamic_object(
+        let player_entity = spawn_dynamic_object(
             commands,
             create_sprite_bundle(game_textures.player_right.clone(),
                                  (300.0, 300.0), cords),
@@ -166,11 +163,11 @@ pub fn spawn_players(
     Player::spawn_right(&mut commands, game_textures_2, RIGHT_PLAYER_CORDS);
 }
 
-fn handle_death(mut players: Query<(&mut Player)>, mut app_state: ResMut<State<AppState>>) {
+fn handle_death(mut players: Query<&mut Player>, mut app_state: ResMut<State<AppState>>) {
     let mut players_killed: (bool, bool) = (false, false);
 
     for player in players.borrow_mut() {
-        if player.hp <= 0.0 {
+        if player.hp <= 0 {
             match player.num {
                 PlayerNum::One => { players_killed.0 = true; }
                 PlayerNum::Two => { players_killed.1 = true; }

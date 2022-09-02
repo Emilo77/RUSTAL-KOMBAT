@@ -4,9 +4,9 @@ use crate::gameplay::animation::spawn_animated_sprite;
 use crate::gameplay::{GameTextures, Player, PlayerNum, PlayerNumComponent};
 
 
-pub fn spawn_dragon(mut commands: Commands,
+pub fn spawn_dragon(commands: Commands,
                     textures: Res<GameTextures>,
-                    mut texture_atlases: ResMut<Assets<TextureAtlas>>) {
+                    texture_atlases: ResMut<Assets<TextureAtlas>>) {
     spawn_animated_sprite(commands, textures.dragon.clone(), texture_atlases,
                           Vec2::new(500.0, 400.0),
                           (1, 1),
@@ -16,9 +16,9 @@ pub fn spawn_dragon(mut commands: Commands,
     );
 }
 
-pub fn spawn_healthbar1(mut commands: Commands,
+pub fn spawn_healthbar1(commands: Commands,
                         textures: Res<GameTextures>,
-                        mut texture_atlases: ResMut<Assets<TextureAtlas>>) {
+                        texture_atlases: ResMut<Assets<TextureAtlas>>) {
     spawn_animated_sprite(commands, textures.healthbar1.clone(), texture_atlases,
                           Vec2::new(960.0, 168.0),
                           (1, 13),
@@ -28,9 +28,9 @@ pub fn spawn_healthbar1(mut commands: Commands,
     );
 }
 
-pub fn spawn_healthbar2(mut commands: Commands,
+pub fn spawn_healthbar2(commands: Commands,
                         textures: Res<GameTextures>,
-                        mut texture_atlases: ResMut<Assets<TextureAtlas>>) {
+                        texture_atlases: ResMut<Assets<TextureAtlas>>) {
     spawn_animated_sprite(commands, textures.healthbar2.clone(), texture_atlases,
                           Vec2::new(960.0, 168.0),
                           (1, 13),
@@ -46,7 +46,7 @@ pub fn animate_healthbars(
         &mut TextureAtlasSprite,
         &Handle<TextureAtlas>,
         &PlayerNumComponent)>,
-    mut player_query: Query<(&mut Player)>,
+    mut player_query: Query<&mut Player>,
 ) {
     for (mut sprite, texture_atlas_handle, healthbar_num) in &mut query {
         let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
@@ -54,22 +54,22 @@ pub fn animate_healthbars(
             if healthbar_num.num == player.num {
                 if player.hurting > 0.0 {
                     match player.hp {
-                        81.0..=100.0 => { sprite.index = 6 % texture_atlas.textures.len(); }
-                        61.0..=80.0 => { sprite.index = 7 % texture_atlas.textures.len(); }
-                        41.0..=60.0 => { sprite.index = 8 % texture_atlas.textures.len(); }
-                        21.0..=40.0 => { sprite.index = 9 % texture_atlas.textures.len(); }
-                        11.0..=20.0 => { sprite.index = 10 % texture_atlas.textures.len(); }
-                        0.0..=10.0 => { sprite.index = 11 % texture_atlas.textures.len(); }
+                        81..=100 => { sprite.index = 6 % texture_atlas.textures.len(); }
+                        61..=80 => { sprite.index = 7 % texture_atlas.textures.len(); }
+                        41..=60 => { sprite.index = 8 % texture_atlas.textures.len(); }
+                        21..=40 => { sprite.index = 9 % texture_atlas.textures.len(); }
+                        11..=20 => { sprite.index = 10 % texture_atlas.textures.len(); }
+                        0..=10 => { sprite.index = 11 % texture_atlas.textures.len(); }
                         _ => { sprite.index = 12 % texture_atlas.textures.len(); }
                     }
                 } else {
                     match player.hp {
-                        81.0..=100.0 => { sprite.index = 0 % texture_atlas.textures.len(); }
-                        61.0..=80.0 => { sprite.index = 1 % texture_atlas.textures.len(); }
-                        41.0..=60.0 => { sprite.index = 2 % texture_atlas.textures.len(); }
-                        21.0..=40.0 => { sprite.index = 3 % texture_atlas.textures.len(); }
-                        11.0..=20.0 => { sprite.index = 4 % texture_atlas.textures.len(); }
-                        0.0..=10.0 => { sprite.index = 5 % texture_atlas.textures.len(); }
+                        81..=100 => { sprite.index = 0 % texture_atlas.textures.len(); }
+                        61..=80 => { sprite.index = 1 % texture_atlas.textures.len(); }
+                        41..=60 => { sprite.index = 2 % texture_atlas.textures.len(); }
+                        21..=40 => { sprite.index = 3 % texture_atlas.textures.len(); }
+                        11..=20 => { sprite.index = 4 % texture_atlas.textures.len(); }
+                        0..=10 => { sprite.index = 5 % texture_atlas.textures.len(); }
                         _ => { sprite.index = 12 % texture_atlas.textures.len(); }
                     }
                 }

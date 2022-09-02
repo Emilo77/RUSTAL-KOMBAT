@@ -15,7 +15,7 @@ pub fn image_blinking(mut menu_images: Query<(&mut MenuEntities, &mut Visibility
     }
 }
 
-pub fn spawn_main_image(mut commands: &mut Commands,
+pub fn spawn_main_image(commands: &mut Commands,
                         image: Handle<Image>,
                         blinking: bool,
                         blinking_time: f32,

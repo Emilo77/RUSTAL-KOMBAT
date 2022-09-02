@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use crate::AppState;
-use crate::gameplay::{GameTextures};
 use crate::menu::{back_to_game, cleanup_menu, FAST_BLINKING, MAIN_IMAGE_POSITION, MAIN_IMAGE_SIZE};
 use crate::menu::assets_handling::MenuTextures;
 use crate::menu::utils::*;

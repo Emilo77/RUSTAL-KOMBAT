@@ -1,6 +1,6 @@
-use bevy::{prelude::*, render::texture::ImageSettings};
+use bevy::prelude::*;
 use bevy_parallax::{
-    LayerData, ParallaxCameraComponent, ParallaxMoveEvent, ParallaxPlugin, ParallaxResource,
+    ParallaxCameraComponent, ParallaxMoveEvent,
 };
 
 pub struct OwnCameraPlugin;

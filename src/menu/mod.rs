@@ -2,12 +2,9 @@ use std::borrow::BorrowMut;
 use bevy::prelude::*;
 
 use crate::AppState;
-use crate::CursorIcon::Default;
-use crate::gameplay::{GameTextures};
 use crate::menu::assets_handling::{MenuTextures};
 use crate::menu::ending_menu::EndingMenuPlugin;
 use crate::menu::starting_menu::StartingMenuPlugin;
-use crate::menu::utils::image_blinking;
 
 mod assets_handling;
 mod utils;
@@ -59,7 +56,7 @@ fn back_to_game(mut keys: ResMut<Input<KeyCode>>, mut app_state: ResMut<State<Ap
 }
 
 pub fn cleanup_menu(mut commands: Commands, mut menu_query: Query<&mut MenuEntities>) {
-    for mut image in menu_query.borrow_mut() {
+    for image in menu_query.borrow_mut() {
         commands.entity(image.menu_entity).despawn_recursive();
     }
 }

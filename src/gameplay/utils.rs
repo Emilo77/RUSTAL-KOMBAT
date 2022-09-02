@@ -1,12 +1,7 @@
-use bevy::{
-    prelude::*,
-    sprite::collide_aabb::{collide, Collision},
-    sprite::MaterialMesh2dBundle,
-};
+use bevy::prelude::*;
+
 use bevy_rapier2d::prelude::*;
 use crate::GAME_WIDTH;
-use crate::gameplay::Strike;
-use crate::menu::{FAST_BLINKING, MenuEntities};
 
 const GRAVITY_SCALE_DEFAULT: f32 = 0.4;
 const VELOCITY_DEFAULT: f32 = 0.0;
