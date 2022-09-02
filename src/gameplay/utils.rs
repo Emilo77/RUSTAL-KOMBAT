@@ -47,53 +47,11 @@ pub fn spawn_dynamic_object(
         .id()
 }
 
-pub fn spawn_solid_collider(
-    commands: &mut Commands,
-    entity: Entity,
-    collider: Collider,
-    friction: Option<Friction>,
-) -> Entity {
-    commands
-        .entity(entity)
-        .insert(collider)
-        .insert(friction.unwrap_or_default())
-        .insert(ActiveEvents::COLLISION_EVENTS)
-        .id()
-}
-
-pub struct ScoreboardPlugin;
-
-impl Plugin for ScoreboardPlugin {
-    fn build(&self, app: &mut App) {
-        app.insert_resource(Scoreboard::new());
-    }
-}
-
-struct Scoreboard {
-    score1: usize,
-    score2: usize,
-}
-
-impl Scoreboard {
-    fn new() -> Scoreboard {
-        Scoreboard {
-            score1: 0,
-            score2: 0,
-        }
-    }
-}
-
-// #[derive(Resource)]
-struct HealthBar {
-    //todo pasek zdrowia 1
-    //todo pasek zdrowia 2
-}
-
-pub struct Bounds;
-
 const BONDS_FLOOR: f32 = -200.0;
 const BONDS_LEFT_WALL: f32 = -GAME_WIDTH / 2.0;
 const BONDS_RIGHT_WALL: f32 = GAME_WIDTH / 2.0;
+
+pub struct Bounds;
 
 impl Bounds {
     pub fn check_bounds_y(transform: &mut Transform) -> bool

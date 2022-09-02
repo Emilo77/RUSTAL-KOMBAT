@@ -1,6 +1,5 @@
 use bevy::prelude::*;
-use bevy_kira_audio::{Audio, AudioChannel, AudioControl, AudioPlugin, AudioSource};
-use rand::{thread_rng, Rng};
+use bevy_kira_audio::{Audio, AudioControl, AudioPlugin, AudioSource};
 use crate::AppState;
 
 pub struct OwnAudioPlugin;

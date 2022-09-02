@@ -4,11 +4,6 @@ use bevy::window::PresentMode;
 use gameplay::GamePlugin;
 use menu::MenuPlugin;
 
-use crate::gameplay::{
-    OwnAudioPlugin, CombatPlugin, PowerupPlugin, PlayerPlugin, MapPlugin, ScoreboardPlugin,
-    OwnCameraPlugin
-};
-
 mod gameplay;
 mod menu;
 
@@ -41,11 +36,6 @@ fn main() {
         .insert_resource(ClearColor(Color::BLACK))
         .add_state(AppState::MainMenu)
         .add_plugin(MenuPlugin)
-        .add_plugin(OwnAudioPlugin)
-        .add_plugin(MapPlugin)
-        .add_plugin(OwnCameraPlugin)
         .add_plugin(GamePlugin)
-        .add_plugin(ScoreboardPlugin)
-        .add_plugin(PlayerPlugin)
         .run();
 }

@@ -75,20 +75,8 @@ impl Abilities {
         }
     }
 
-    pub fn walking_possible(&self) -> bool {
-        !self.dash.is_active
-    }
-
     pub fn jump_possible(&self) -> bool {
         !self.dash.is_active
-    }
-
-    pub fn dash_possible(&self) -> bool {
-        true
-    }
-
-    pub fn strike_possible(&self) -> bool {
-        true
     }
 
     pub fn dash_active(&self) -> bool {
@@ -179,7 +167,7 @@ pub fn overall_combat(mut player_query: Query<(&mut Player, &mut Transform, &mut
     }
 }
 
-pub fn kill(mut player_query: Query<(&mut Player)>,
+pub fn kill(mut player_query: Query<&mut Player>,
             keyboard_input: Res<Input<KeyCode>>) {
 
     for mut player in player_query.borrow_mut() {

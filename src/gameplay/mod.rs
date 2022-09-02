@@ -1,8 +1,5 @@
-use std::borrow::BorrowMut;
 use bevy::prelude::*;
-// use bevy_rapier2d::prelude::*;
 
-pub use physics::*;
 pub use audio::*;
 pub use combat::*;
 pub use map::*;
@@ -19,11 +16,9 @@ mod map;
 mod player;
 mod utils;
 mod camera;
-mod physics;
-mod healthbars;
+mod boards;
 mod assets_handling;
 mod animation;
-
 
 
 pub struct GamePlugin;
@@ -32,7 +27,11 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system_to_stage(StartupStage::PreStartup, setup)
             .add_system_set(SystemSet::on_exit(AppState::InGame)
-                .with_system(cleanup_all));
+                .with_system(cleanup_all))
+            .add_plugin(OwnAudioPlugin)
+            .add_plugin(MapPlugin)
+            .add_plugin(OwnCameraPlugin)
+            .add_plugin(PlayerPlugin);
     }
 }
 

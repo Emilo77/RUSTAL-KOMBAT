@@ -5,8 +5,12 @@ use bevy_rapier2d::parry::simba::simd::WideBoolF32x4;
 use rand::prelude::ThreadRng;
 use crate::AppState;
 
-use crate::gameplay::{Abilities, Bounds, cleanup_all, create_sprite_bundle, dash_system, GameTextures, jumping, kill, movement, overall_combat, spawn_dynamic_object};
-use crate::gameplay::animation::{animate_healthbars, spawn_animated_sprite, spawn_dragon, spawn_healthbar1, spawn_healthbar2};
+use crate::gameplay::{Abilities, Bounds, GameTextures,
+                      cleanup_all, create_sprite_bundle,
+                      dash_system, jumping, kill, movement,
+                      overall_combat, spawn_dynamic_object};
+use crate::gameplay::animation::*;
+use crate::gameplay::boards::{animate_healthbars, spawn_dragon, spawn_healthbar1, spawn_healthbar2};
 
 pub struct PlayerPlugin;
 
@@ -34,13 +38,12 @@ pub struct Controls {
 const LEFT_PLAYER_CORDS: (f32, f32, f32) = (-500.0, -200.0, 5.0);
 const RIGHT_PLAYER_CORDS: (f32, f32, f32) = (500.0, -200.0, 5.0);
 const PLAYER_BASIC_SPEED: f32 = 5.0;
-const PLAYER_MAX_SPEED: f32 = 7.0;
 const PLAYER_STARTING_HP: f32 = 100.0;
 
 
 #[derive(Component)]
 pub struct PlayerNumComponent {
-    pub num: PlayerNum
+    pub num: PlayerNum,
 }
 
 impl PlayerNumComponent {
@@ -68,7 +71,6 @@ pub struct Player {
     pub num: PlayerNum,
     pub hp: f32,
     pub speed: f32,
-    pub max_speed: f32,
     pub side: PlayerSide,
     pub controls: Controls,
     pub hurting: f32,
@@ -82,14 +84,13 @@ impl Plugin for PlayerPlugin {
             .with_system(spawn_healthbar1)
             .with_system(spawn_healthbar2))
             .add_system_set(SystemSet::on_update(AppState::InGame)
+                .with_system(animate_healthbars)
                 .with_system(movement)
                 .with_system(jumping)
                 .with_system(dash_system)
                 .with_system(overall_combat)
                 .with_system(kill)
-                .with_system(handle_death)
-                .with_system(animate_healthbars)
-                );
+                .with_system(handle_death));
     }
 }
 
@@ -98,7 +99,6 @@ impl Player {
         Player {
             hp: PLAYER_STARTING_HP,
             speed: PLAYER_BASIC_SPEED,
-            max_speed: PLAYER_MAX_SPEED,
             side: match num {
                 PlayerNum::One => { PlayerSide::Right }
                 PlayerNum::Two => { PlayerSide::Left }
