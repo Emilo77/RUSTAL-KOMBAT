@@ -18,7 +18,7 @@ impl Plugin for OwnAudioPlugin {
             .add_event::<AudioDashEvent>()
 
             .add_system_set(SystemSet::on_enter(AppState::StartingMenu)
-                .with_system(start_background_music))
+                .with_system(start_menu_music))
             .add_system_set(SystemSet::on_exit(AppState::StartingMenu)
                 .with_system(stop_music))
 
@@ -60,7 +60,7 @@ fn load_audio(mut commands: Commands, assets: Res<AssetServer>) {
     });
 }
 
-fn start_background_music(audio_asset: Res<AudioAssets>, audio: Res<Audio>) {
+fn start_menu_music(audio_asset: Res<AudioAssets>, audio: Res<Audio>) {
     audio.play(audio_asset.starting_background.clone())
         .with_volume(BASIC_VOLUME);
 }

@@ -205,7 +205,7 @@ pub fn overall_combat(mut player_query: Query<(&mut Player, &mut Transform, &mut
         p1_should_get_dmg = true;
     }
 
-    for (mut player, transform, abilities) in player_query.borrow_mut() {
+    for (mut player, _transform, abilities) in player_query.borrow_mut() {
         if player.num == PlayerNum::One && p1_should_get_dmg {
             deal_damage(&mut player, abilities.dash.damage)
         }

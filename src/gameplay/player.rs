@@ -2,7 +2,9 @@ use std::borrow::BorrowMut;
 use bevy::prelude::*;
 use crate::AppState;
 
-use crate::gameplay::{Abilities, GameTextures, dashing, jumping, movement, overall_combat, spawn_dynamic_object, generate_sprite_sheet};
+use crate::gameplay::{Abilities, GameTextures, dashing, jumping,
+                      movement, overall_combat,
+                      spawn_dynamic_object, generate_sprite_sheet};
 use crate::gameplay::boards::{animate_healthbars, spawn_dragon,
                               spawn_healthbar1, spawn_healthbar2};
 
@@ -26,6 +28,13 @@ const PLAYER_TILE_SIZE: Vec2 = Vec2::new(520.0, 1152.0);
 const PLAYER_GRID: (usize, usize) = (6, 1);
 pub const PLAYER_SIZE: Vec2 = Vec2::new(100.0, 221.54);
 
+const SPRITE_LEFT_SIDE: usize = 0;
+const SPRITE_LEFT_SIDE_DASH: usize = 2;
+
+const SPRITE_RIGHT_SIDE: usize = 3;
+const SPRITE_RIGHT_SIDE_DASH: usize = 5;
+
+
 //STARTING CORDS
 const LEFT_PLAYER_CORDS: (f32, f32, f32) = (-500.0, -200.0, 5.0);
 const RIGHT_PLAYER_CORDS: (f32, f32, f32) = (500.0, -200.0, 5.0);
@@ -42,6 +51,13 @@ pub struct Controls {
     pub attack: KeyCode,
 }
 
+
+#[derive(Eq, PartialEq, Clone)]
+pub enum PlayerNum {
+    One,
+    Two,
+}
+
 #[derive(Component)]
 pub struct PlayerNumComponent {
     pub num: PlayerNum,
@@ -53,12 +69,6 @@ impl PlayerNumComponent {
             num
         }
     }
-}
-
-#[derive(Eq, PartialEq, Clone)]
-pub enum PlayerNum {
-    One,
-    Two,
 }
 
 #[derive(Copy, Clone)]
@@ -177,7 +187,7 @@ impl Player {
              texture_atlases: ResMut<Assets<TextureAtlas>>,
              player_num: PlayerNum) {
         let cords: Vec3;
-        let mut textures: Handle<Image>;
+        let textures: Handle<Image>;
         match player_num {
             PlayerNum::One => {
                 cords = Vec3::from(LEFT_PLAYER_CORDS);
@@ -223,16 +233,16 @@ pub fn player_animation(
                 match player.side {
                     PlayerSide::Left => {
                         if abilities.dash.is_active {
-                            sprite.index = 2 % texture_atlas.textures.len();
+                            sprite.index = SPRITE_LEFT_SIDE_DASH % texture_atlas.textures.len();
                         } else {
-                            sprite.index = 0 % texture_atlas.textures.len();
+                            sprite.index = SPRITE_LEFT_SIDE % texture_atlas.textures.len();
                         }
                     }
                     PlayerSide::Right => {
                         if abilities.dash.is_active {
-                            sprite.index = 5 % texture_atlas.textures.len();
+                            sprite.index = SPRITE_RIGHT_SIDE_DASH % texture_atlas.textures.len();
                         } else {
-                            sprite.index = 3 % texture_atlas.textures.len();
+                            sprite.index = SPRITE_RIGHT_SIDE % texture_atlas.textures.len();
                         }
                     }
                 }
