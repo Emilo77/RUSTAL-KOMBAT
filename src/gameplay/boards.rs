@@ -9,7 +9,7 @@ pub fn spawn_dragon(commands: Commands,
                     texture_atlases: ResMut<Assets<TextureAtlas>>) {
     spawn_animated_object(commands, textures.dragon.clone(), texture_atlases,
                           Vec2::new(500.0, 400.0),
-                          (1, 1),
+                          (2, 1),
                           Vec2::new(200.0, 160.0),
                           Vec3::new(0.0, 280.0, 5.0),
                           PlayerNum::One,
@@ -40,7 +40,7 @@ pub fn spawn_healthbar2(commands: Commands,
     );
 }
 
-pub fn animate_healthbars(
+pub fn animate_healthbars_and_dragon(
     texture_atlases: Res<Assets<TextureAtlas>>,
     mut query: Query<(
         &mut TextureAtlasSprite,
@@ -59,7 +59,7 @@ pub fn animate_healthbars(
                         41..=60 => { sprite.index = 8 % texture_atlas.textures.len(); }
                         21..=40 => { sprite.index = 9 % texture_atlas.textures.len(); }
                         11..=20 => { sprite.index = 10 % texture_atlas.textures.len(); }
-                        0..=10 => { sprite.index = 11 % texture_atlas.textures.len(); }
+                        1..=10 => { sprite.index = 11 % texture_atlas.textures.len(); }
                         _ => { sprite.index = 12 % texture_atlas.textures.len(); }
                     }
                 } else {
@@ -69,7 +69,7 @@ pub fn animate_healthbars(
                         41..=60 => { sprite.index = 2 % texture_atlas.textures.len(); }
                         21..=40 => { sprite.index = 3 % texture_atlas.textures.len(); }
                         11..=20 => { sprite.index = 4 % texture_atlas.textures.len(); }
-                        0..=10 => { sprite.index = 5 % texture_atlas.textures.len(); }
+                        1..=10 => { sprite.index = 5 % texture_atlas.textures.len(); }
                         _ => { sprite.index = 12 % texture_atlas.textures.len(); }
                     }
                 }

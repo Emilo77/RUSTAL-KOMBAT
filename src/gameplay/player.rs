@@ -5,7 +5,7 @@ use crate::AppState;
 use crate::gameplay::{Abilities, GameTextures, dashing, jumping,
                       movement, overall_combat,
                       spawn_dynamic_object, generate_sprite_sheet};
-use crate::gameplay::boards::{animate_healthbars, spawn_dragon,
+use crate::gameplay::boards::{animate_healthbars_and_dragon, spawn_dragon,
                               spawn_healthbar1, spawn_healthbar2};
 
 pub struct PlayerPlugin;
@@ -96,7 +96,7 @@ impl Plugin for PlayerPlugin {
             .with_system(spawn_healthbar1)
             .with_system(spawn_healthbar2))
             .add_system_set(SystemSet::on_update(AppState::InGame)
-                .with_system(animate_healthbars)
+                .with_system(animate_healthbars_and_dragon)
                 .with_system(movement)
                 .with_system(jumping)
                 .with_system(dashing)
