@@ -87,15 +87,20 @@ impl Abilities {
         return false;
     }
 
-    pub fn handle_all(&mut self, player: &mut Player, transform: &mut Transform) {
+    pub fn handle_hurting_cooldown(player: &mut Player) {
         if player.hurting > 0.0 {
             player.hurting -= 0.1;
         }
+    }
 
+    pub fn handle_dash_cooldown(&mut self) {
         if self.dash.cooldown > 0.0 {
             self.dash.cooldown -= 0.1;
         }
+    }
 
+
+    pub fn handle_all(&mut self, player: &mut Player, transform: &mut Transform) {
         if self.jump.is_active && !self.dash.is_active {
             transform.translation.y += self.jump.current_power;
             self.jump.current_power -= GRAVITY_CONST;
@@ -184,6 +189,9 @@ pub fn overall_combat(mut player_query: Query<(&mut Player, &mut Transform, &mut
     let mut p2_should_get_dmg: bool = false;
 
     for (mut player, mut transform, mut abilities) in player_query.borrow_mut() {
+
+        Abilities::handle_hurting_cooldown(&mut player);
+        Abilities::handle_dash_cooldown(&mut abilities);
         Abilities::handle_all(&mut abilities, &mut player, &mut transform);
 
         match player.num {
