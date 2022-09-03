@@ -68,17 +68,21 @@ impl Abilities {
         !self.dash.is_active
     }
 
-    pub fn dash_active(&self) -> bool {
+    pub fn dash_is_active(&self) -> bool {
         self.dash.is_active
     }
 
-    pub fn handle_jump(&mut self) {
+    pub fn jump_is_active(&self) -> bool {
+        self.jump.is_active
+    }
+
+    pub fn activate_jump(&mut self) {
         if Abilities::jump_possible(&self) {
             self.jump.is_active = true;
         }
     }
 
-    pub fn handle_dash(&mut self, side: PlayerSide) -> bool {
+    pub fn activate_dash(&mut self, side: PlayerSide) -> bool {
         if self.dash.cooldown <= 0.0 {
             self.dash.is_active = true;
             self.dash.side = side;
@@ -99,9 +103,8 @@ impl Abilities {
         }
     }
 
-
-    pub fn handle_all(&mut self, player: &mut Player, transform: &mut Transform) {
-        if self.jump.is_active && !self.dash.is_active {
+    pub fn handle_gravity(&mut self, transform: &mut Transform) {
+        if Abilities::jump_is_active(self) && !Abilities::dash_is_active(self) {
             transform.translation.y += self.jump.current_power;
             self.jump.current_power -= GRAVITY_CONST;
 
@@ -112,7 +115,10 @@ impl Abilities {
                 self.jump.current_power = self.jump.power;
             }
         }
-        if self.dash.is_active {
+    }
+
+    pub fn handle_dash_movement(&mut self, player: &mut Player, transform: &mut Transform) {
+        if Abilities::dash_is_active(self) {
             match self.dash.side {
                 PlayerSide::Left => {
                     transform.translation.x -= self.dash.speed_bonus * player.speed;
@@ -130,6 +136,12 @@ impl Abilities {
         }
     }
 
+
+    pub fn handle_all(&mut self, player: &mut Player, transform: &mut Transform) {
+        Abilities::handle_gravity(self, transform);
+        Abilities::handle_dash_movement(self, player, transform);
+    }
+
     pub fn give_dash_info(&self, transform: &Transform) -> DashInformation {
         DashInformation {
             player_cords: Vec2::new(transform.translation.x, transform.translation.y),
@@ -141,7 +153,7 @@ impl Abilities {
 pub fn movement(mut player_query: Query<(&mut Player, &mut Transform, &mut Abilities)>,
                 keyboard_input: Res<Input<KeyCode>>) {
     for (mut player, mut transform, abilities) in player_query.borrow_mut() {
-        if !Abilities::dash_active(&abilities) {
+        if !Abilities::dash_is_active(&abilities) {
             if keyboard_input.pressed(player.controls.left) {
                 transform.translation.x -= player.speed;
                 player.side = PlayerSide::Left;
@@ -159,7 +171,7 @@ pub fn jumping(mut player_query: Query<(&mut Player, &mut Abilities)>,
                keyboard_input: Res<Input<KeyCode>>) {
     for (player, mut abilities) in player_query.borrow_mut() {
         if keyboard_input.just_pressed(player.controls.jump) {
-            Abilities::handle_jump(&mut abilities);
+            Abilities::activate_jump(&mut abilities);
         }
     }
 }
@@ -169,7 +181,7 @@ pub fn dashing(mut player_query: Query<(&mut Player, &mut Abilities)>,
                mut audio_hit_event: EventWriter<AudioDashEvent>, ) {
     for (player, mut abilities) in player_query.borrow_mut() {
         if keyboard_input.just_pressed(player.controls.dash)
-            && Abilities::handle_dash(&mut abilities, player.side) {
+            && Abilities::activate_dash(&mut abilities, player.side) {
             audio_hit_event.send(AudioDashEvent)
         }
     }
@@ -189,7 +201,6 @@ pub fn overall_combat(mut player_query: Query<(&mut Player, &mut Transform, &mut
     let mut p2_should_get_dmg: bool = false;
 
     for (mut player, mut transform, mut abilities) in player_query.borrow_mut() {
-
         Abilities::handle_hurting_cooldown(&mut player);
         Abilities::handle_dash_cooldown(&mut abilities);
         Abilities::handle_all(&mut abilities, &mut player, &mut transform);
