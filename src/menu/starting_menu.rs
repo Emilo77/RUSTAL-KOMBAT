@@ -8,12 +8,12 @@ pub struct StartingMenuPlugin;
 
 impl Plugin for StartingMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(AppState::MainMenu)
+        app.add_system_set(SystemSet::on_enter(AppState::StartingMenu)
             .with_system(setup_main_menu))
-            .add_system_set(SystemSet::on_update(AppState::MainMenu)
+            .add_system_set(SystemSet::on_update(AppState::StartingMenu)
                 .with_system(image_blinking)
                 .with_system(back_to_game))
-            .add_system_set(SystemSet::on_exit(AppState::MainMenu)
+            .add_system_set(SystemSet::on_exit(AppState::StartingMenu)
                 .with_system(cleanup_menu));
     }
 }

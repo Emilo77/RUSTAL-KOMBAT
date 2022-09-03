@@ -14,8 +14,8 @@ pub struct GameTextures {
 impl GameTextures {
     pub fn load(asset_server: Res<AssetServer>) -> Self {
         GameTextures {
-            player_left: asset_server.load("images/samurai1.png"),
-            player_right: asset_server.load("images/samurai2.png"),
+            player_left: asset_server.load("images/gameplay/samurai1.png"),
+            player_right: asset_server.load("images/gameplay/samurai2.png"),
 
             dragon: asset_server.load("images/board/dragon.png"),
             dragon_blue: asset_server.load("images/board/dragon_blue.png"),

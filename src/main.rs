@@ -13,7 +13,7 @@ const GAME_HEIGHT: f32 = 720.0;
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
     InGame,
-    MainMenu,
+    StartingMenu,
 
     EndMenuWinP1,
     EndMenuWinP2,
@@ -34,7 +34,7 @@ fn main() {
             ..Default::default()
         })
         .insert_resource(ClearColor(Color::BLACK))
-        .add_state(AppState::MainMenu)
+        .add_state(AppState::StartingMenu)
         .add_plugin(MenuPlugin)
         .add_plugin(GamePlugin)
         .run();

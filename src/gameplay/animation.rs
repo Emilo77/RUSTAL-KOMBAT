@@ -18,4 +18,3 @@ pub fn spawn_animated_object(mut commands: Commands,
 
 
 
-

@@ -1,6 +1,6 @@
 use std::borrow::{BorrowMut};
 use bevy::prelude::*;
-use crate::gameplay::{Bounds, Player, PLAYER_SIZE, PlayerNum, PlayerSide};
+use crate::gameplay::{AudioDashEvent, Bounds, Player, PLAYER_SIZE, PlayerNum, PlayerSide};
 
 const GRAVITY_CONST: f32 = 0.2;
 
@@ -8,7 +8,7 @@ const GRAVITY_CONST: f32 = 0.2;
 const DASH_COOLDOWN: f32 = 10.0;
 const DASH_SPEED_BONUS: f32 = 3.0;
 const DASH_DURATION: f32 = 0.25;
-const DASH_DAMAGE: i32 = 11;
+const DASH_DAMAGE: i32 = 9;
 //Jump
 const JUMP_POWER: f32 = 13.0;
 
@@ -42,7 +42,6 @@ pub struct Abilities {
 pub struct DashInformation {
     pub player_cords: Vec2,
     pub dash_active: bool,
-    player_num: PlayerNum,
 }
 
 impl Abilities {
@@ -61,7 +60,7 @@ impl Abilities {
                 is_active: false,
                 side: PlayerSide::Left,
             },
-            player_num
+            player_num,
         }
     }
 
@@ -79,11 +78,13 @@ impl Abilities {
         }
     }
 
-    pub fn handle_dash(&mut self, side: PlayerSide) {
+    pub fn handle_dash(&mut self, side: PlayerSide) -> bool {
         if self.dash.cooldown <= 0.0 {
             self.dash.is_active = true;
             self.dash.side = side;
+            return true;
         }
+        return false;
     }
 
     pub fn handle_all(&mut self, player: &mut Player, transform: &mut Transform) {
@@ -124,12 +125,10 @@ impl Abilities {
         }
     }
 
-    pub fn give_dash_info(&self, player: &mut Player,
-                          transform: &Transform) -> DashInformation {
+    pub fn give_dash_info(&self, transform: &Transform) -> DashInformation {
         DashInformation {
             player_cords: Vec2::new(transform.translation.x, transform.translation.y),
             dash_active: self.dash.is_active,
-            player_num: player.num.clone(),
         }
     }
 }
@@ -161,10 +160,12 @@ pub fn jumping(mut player_query: Query<(&mut Player, &mut Abilities)>,
 }
 
 pub fn dashing(mut player_query: Query<(&mut Player, &mut Abilities)>,
-               keyboard_input: Res<Input<KeyCode>>) {
+               keyboard_input: Res<Input<KeyCode>>,
+               mut audio_hit_event: EventWriter<AudioDashEvent>, ) {
     for (player, mut abilities) in player_query.borrow_mut() {
-        if keyboard_input.just_pressed(player.controls.dash) {
-            Abilities::handle_dash(&mut abilities, player.side);
+        if keyboard_input.just_pressed(player.controls.dash)
+            && Abilities::handle_dash(&mut abilities, player.side) {
+            audio_hit_event.send(AudioDashEvent)
         }
     }
 }
@@ -173,12 +174,10 @@ pub fn overall_combat(mut player_query: Query<(&mut Player, &mut Transform, &mut
     let mut dash_info_p1: DashInformation = DashInformation {
         player_cords: Default::default(),
         dash_active: false,
-        player_num: PlayerNum::One,
     };
     let mut dash_info_p2: DashInformation = DashInformation {
         player_cords: Default::default(),
         dash_active: false,
-        player_num: PlayerNum::One,
     };
 
     let mut p1_should_get_dmg: bool = false;
@@ -189,10 +188,10 @@ pub fn overall_combat(mut player_query: Query<(&mut Player, &mut Transform, &mut
 
         match player.num {
             PlayerNum::One => {
-                dash_info_p1 = Abilities::give_dash_info(&abilities, &mut player, &transform)
+                dash_info_p1 = Abilities::give_dash_info(&abilities, &transform)
             }
             PlayerNum::Two => {
-                dash_info_p2 = Abilities::give_dash_info(&abilities, &mut player, &transform)
+                dash_info_p2 = Abilities::give_dash_info(&abilities, &transform)
             }
         }
     }
@@ -227,19 +226,5 @@ pub fn deal_damage(player: &mut Player, damage: i32) {
     if player.hurting <= 0.0 {
         player.hurting = PLAYER_HURTING_TIME;
         player.hp -= damage;
-    }
-}
-
-pub fn kill(mut player_query: Query<&mut Player>,
-            keyboard_input: Res<Input<KeyCode>>) {
-    for mut player in player_query.borrow_mut() {
-        if player.num == PlayerNum::One {
-            if player.hurting > 0.0 {
-                player.hurting -= 1.0;
-            } else if keyboard_input.just_pressed(KeyCode::L) {
-                player.hurting = PLAYER_HURTING_TIME;
-                player.hp -= DASH_DAMAGE;
-            }
-        }
     }
 }
