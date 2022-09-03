@@ -1,6 +1,6 @@
-use std::borrow::BorrowMut;
+use std::borrow::{BorrowMut};
 use bevy::prelude::*;
-use crate::gameplay::{Bounds, Player, PlayerNum, PlayerSide};
+use crate::gameplay::{Bounds, Player, PLAYER_SIZE, PlayerNum, PlayerSide};
 
 const GRAVITY_CONST: f32 = 0.2;
 
@@ -12,7 +12,8 @@ const DASH_DAMAGE: i32 = 11;
 //Jump
 const JUMP_POWER: f32 = 13.0;
 
-const PLAYER_HURTING_TIME: f32 = 30.0;
+const PLAYER_HURTING_TIME: f32 = 10.0;
+const HITBOX_RATIO: f32 = 0.6;
 
 #[derive(Component)]
 pub struct Dash {
@@ -35,10 +36,17 @@ pub struct Jump {
 pub struct Abilities {
     pub jump: Jump,
     pub dash: Dash,
+    pub player_num: PlayerNum,
+}
+
+pub struct DashInformation {
+    pub player_cords: Vec2,
+    pub dash_active: bool,
+    player_num: PlayerNum,
 }
 
 impl Abilities {
-    pub fn default() -> Self {
+    pub fn new(player_num: PlayerNum) -> Self {
         Abilities {
             jump: Jump {
                 power: JUMP_POWER,
@@ -53,6 +61,7 @@ impl Abilities {
                 is_active: false,
                 side: PlayerSide::Left,
             },
+            player_num
         }
     }
 
@@ -78,6 +87,10 @@ impl Abilities {
     }
 
     pub fn handle_all(&mut self, player: &mut Player, transform: &mut Transform) {
+        if player.hurting > 0.0 {
+            player.hurting -= 0.1;
+        }
+
         if self.dash.cooldown > 0.0 {
             self.dash.cooldown -= 0.1;
         }
@@ -108,6 +121,15 @@ impl Abilities {
                 self.dash.duration = DASH_DURATION;
                 self.dash.cooldown = DASH_COOLDOWN;
             }
+        }
+    }
+
+    pub fn give_dash_info(&self, player: &mut Player,
+                          transform: &Transform) -> DashInformation {
+        DashInformation {
+            player_cords: Vec2::new(transform.translation.x, transform.translation.y),
+            dash_active: self.dash.is_active,
+            player_num: player.num.clone(),
         }
     }
 }
@@ -148,8 +170,63 @@ pub fn dashing(mut player_query: Query<(&mut Player, &mut Abilities)>,
 }
 
 pub fn overall_combat(mut player_query: Query<(&mut Player, &mut Transform, &mut Abilities)>) {
+    let mut dash_info_p1: DashInformation = DashInformation {
+        player_cords: Default::default(),
+        dash_active: false,
+        player_num: PlayerNum::One,
+    };
+    let mut dash_info_p2: DashInformation = DashInformation {
+        player_cords: Default::default(),
+        dash_active: false,
+        player_num: PlayerNum::One,
+    };
+
+    let mut p1_should_get_dmg: bool = false;
+    let mut p2_should_get_dmg: bool = false;
+
     for (mut player, mut transform, mut abilities) in player_query.borrow_mut() {
         Abilities::handle_all(&mut abilities, &mut player, &mut transform);
+
+        match player.num {
+            PlayerNum::One => {
+                dash_info_p1 = Abilities::give_dash_info(&abilities, &mut player, &transform)
+            }
+            PlayerNum::Two => {
+                dash_info_p2 = Abilities::give_dash_info(&abilities, &mut player, &transform)
+            }
+        }
+    }
+    if dash_info_p1.dash_active
+        && in_hitbox_range(dash_info_p1.player_cords, dash_info_p2.player_cords) {
+        p2_should_get_dmg = true;
+    }
+
+    if dash_info_p2.dash_active
+        && in_hitbox_range(dash_info_p2.player_cords, dash_info_p1.player_cords) {
+        p1_should_get_dmg = true;
+    }
+
+    for (mut player, transform, abilities) in player_query.borrow_mut() {
+        if player.num == PlayerNum::One && p1_should_get_dmg {
+            deal_damage(&mut player, abilities.dash.damage)
+        }
+        if player.num == PlayerNum::Two && p2_should_get_dmg {
+            deal_damage(&mut player, abilities.dash.damage)
+        }
+    }
+}
+
+pub fn in_hitbox_range(pos1: Vec2, pos2: Vec2) -> bool {
+    return (pos1.x >= pos2.x - HITBOX_RATIO * PLAYER_SIZE.x)
+        && (pos1.x <= pos2.x + HITBOX_RATIO * PLAYER_SIZE.x)
+        && (pos1.y >= pos2.y - HITBOX_RATIO * PLAYER_SIZE.y)
+        && (pos1.y <= pos2.y + HITBOX_RATIO * PLAYER_SIZE.y);
+}
+
+pub fn deal_damage(player: &mut Player, damage: i32) {
+    if player.hurting <= 0.0 {
+        player.hurting = PLAYER_HURTING_TIME;
+        player.hp -= damage;
     }
 }
 

@@ -66,6 +66,6 @@ pub fn setup_end_menu_draw(mut commands: Commands, textures: Res<MenuTextures>) 
     spawn_main_image(&mut commands, textures.draw2.clone(), true,
                      SLOW_BLINKING, MAIN_IMAGE_SIZE, MAIN_IMAGE_POSITION);
 
-    spawn_main_image(&mut commands, textures.play_again.clone(), false,
+    spawn_main_image(&mut commands, textures.play_again.clone(), true,
                      SUPER_SLOW_BLINKING, BELOW_IMAGE_SIZE, BELOW_IMAGE_POSITION);
 }

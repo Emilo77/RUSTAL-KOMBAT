@@ -2,7 +2,7 @@ use std::borrow::BorrowMut;
 use bevy::prelude::*;
 use crate::AppState;
 
-use crate::gameplay::{Abilities, GameTextures, dashing, jumping, kill, movement, overall_combat, spawn_dynamic_object, generate_sprite_sheet};
+use crate::gameplay::{Abilities, GameTextures, dashing, jumping, movement, overall_combat, spawn_dynamic_object, generate_sprite_sheet};
 use crate::gameplay::boards::{animate_healthbars, spawn_dragon,
                               spawn_healthbar1, spawn_healthbar2};
 
@@ -21,6 +21,19 @@ const CONTROLS_PLAYER2_JUMP: KeyCode = KeyCode::Up;
 const CONTROLS_PLAYER2_DASH: KeyCode = KeyCode::Down;
 const CONTROLS_PLAYER2_ATTACK: KeyCode = KeyCode::Numpad0;
 
+//SPRITE SHEETS
+const PLAYER_TILE_SIZE: Vec2 = Vec2::new(520.0, 1152.0);
+const PLAYER_GRID: (usize, usize) = (6, 1);
+pub const PLAYER_SIZE: Vec2 = Vec2::new(100.0, 221.54);
+
+//STARTING CORDS
+const LEFT_PLAYER_CORDS: (f32, f32, f32) = (-500.0, -200.0, 5.0);
+const RIGHT_PLAYER_CORDS: (f32, f32, f32) = (500.0, -200.0, 5.0);
+
+//POWER
+const PLAYER_BASIC_SPEED: f32 = 5.0;
+const PLAYER_STARTING_HP: i32 = 100;
+
 pub struct Controls {
     pub left: KeyCode,
     pub right: KeyCode,
@@ -28,12 +41,6 @@ pub struct Controls {
     pub dash: KeyCode,
     pub attack: KeyCode,
 }
-
-const LEFT_PLAYER_CORDS: (f32, f32, f32) = (-500.0, -200.0, 5.0);
-const RIGHT_PLAYER_CORDS: (f32, f32, f32) = (500.0, -200.0, 5.0);
-const PLAYER_BASIC_SPEED: f32 = 5.0;
-const PLAYER_STARTING_HP: i32 = 100;
-
 
 #[derive(Component)]
 pub struct PlayerNumComponent {
@@ -48,7 +55,7 @@ impl PlayerNumComponent {
     }
 }
 
-#[derive(Eq, PartialEq)]
+#[derive(Eq, PartialEq, Clone)]
 pub enum PlayerNum {
     One,
     Two,
@@ -84,8 +91,8 @@ impl Plugin for PlayerPlugin {
                 .with_system(jumping)
                 .with_system(dashing)
                 .with_system(overall_combat)
-                .with_system(kill)
-                .with_system(handle_death));
+                .with_system(handle_death)
+                .with_system(player_animation));
     }
 }
 
@@ -170,29 +177,70 @@ impl Player {
              texture_atlases: ResMut<Assets<TextureAtlas>>,
              player_num: PlayerNum) {
         let cords: Vec3;
+        let mut textures: Handle<Image>;
         match player_num {
-            PlayerNum::One => { cords = Vec3::from(LEFT_PLAYER_CORDS); }
-            PlayerNum::Two => { cords = Vec3::from(RIGHT_PLAYER_CORDS); }
+            PlayerNum::One => {
+                cords = Vec3::from(LEFT_PLAYER_CORDS);
+                textures = game_textures.player_left.clone();
+            }
+            PlayerNum::Two => {
+                cords = Vec3::from(RIGHT_PLAYER_CORDS);
+                textures = game_textures.player_right.clone();
+            }
         }
 
         let player_entity = spawn_dynamic_object(
             commands,
             generate_sprite_sheet(
-                game_textures.player_left.clone(),
+                textures,
                 texture_atlases,
-                Vec2::new(520.0, 1152.0),
-                (1, 1),
-                Vec2::new(100.0, 221.54),
+                PLAYER_TILE_SIZE,
+                PLAYER_GRID,
+                PLAYER_SIZE,
                 cords),
             None,
             None,
         );
 
         commands.entity(player_entity)
-            .insert(Player::new(player_num))
-            .insert(Abilities::default());
+            .insert(Player::new(player_num.clone()))
+            .insert(Abilities::new(player_num));
     }
 }
+
+pub fn player_animation(
+    texture_atlases: Res<Assets<TextureAtlas>>,
+    mut query: Query<(
+        &mut TextureAtlasSprite,
+        &Handle<TextureAtlas>,
+        &Abilities)>,
+    mut player_query: Query<&mut Player>,
+) {
+    for player in player_query.borrow_mut() {
+        for (mut sprite, texture_atlas_handle, abilities) in &mut query {
+            let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
+            if abilities.player_num == player.num {
+                match player.side {
+                    PlayerSide::Left => {
+                        if abilities.dash.is_active {
+                            sprite.index = 2 % texture_atlas.textures.len();
+                        } else {
+                            sprite.index = 0 % texture_atlas.textures.len();
+                        }
+                    }
+                    PlayerSide::Right => {
+                        if abilities.dash.is_active {
+                            sprite.index = 5 % texture_atlas.textures.len();
+                        } else {
+                            sprite.index = 3 % texture_atlas.textures.len();
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 
 
