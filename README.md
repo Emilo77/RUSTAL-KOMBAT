@@ -7,9 +7,9 @@ Kamil Bugała, @Emilo77 on Github
 
 ## Description
 
-I created a game in the style of Mortal Kombat.
+I created a game in the style of Mortal Combat.
 Two players fight each other by using dashes.
-It is the 2 v 2 version, so far it is possible to play on one computer:
+It is the 1 v 1 version, so far it is possible to play on one computer:
 - first player controls WASD
 - second player controls arrows
 
