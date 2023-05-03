@@ -1,13 +1,13 @@
 ![](md_assets/main_photo.png)
 
-# Rustal Combat
+# Rustal Kombat
 
 ## Authors
 Kamil Bugała, @Emilo77 on Github
 
 ## Description
 
-I created a game in the style of Mortal Combat.
+I created a game in the style of Mortal Kombat.
 Two players fight each other by using dashes.
 It is the 1 v 1 version, so far it is possible to play on one computer:
 - first player controls WASD
